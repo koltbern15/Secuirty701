@@ -1,0 +1,307 @@
+front,back,domain,tags
+What is the CIA triad?,"Confidentiality, Integrity, and Availability - the three core goals of information security.",1,fundamentals cia
+What is non-repudiation?,Assurance that a party cannot deny having performed an action; provided by digital signatures and audit logging.,1,fundamentals signatures
+What is the AAA framework?,"Authentication, Authorization, and Accounting - verifying identity, granting access, and tracking activity.",1,iam aaa
+Authentication vs Authorization - which proves who you are?,Authentication proves who you are; Authorization determines what you are allowed to do. Authentication comes first.,1,iam aaa
+What is the principle of least privilege?,Granting users only the minimum access required to perform their job and nothing more.,1,iam least-privilege
+What is a security control?,A measure that reduces risk; categorized by type (technical/managerial/operational/physical) and function (preventive/detective/corrective/etc.).,1,controls fundamentals
+Control category vs control function - which describes 'preventive'?,Function describes what the control does (preventive/detective/deterrent/corrective/compensating/directive). Category describes its nature (technical/managerial/operational/physical).,1,controls types
+What is a compensating control?,An alternative control used when the primary required control cannot be implemented; it offsets the missing protection.,1,controls compensating
+What is a detective control?,"A control that identifies and records that an incident has occurred (e.g., IDS, log review, CCTV monitoring).",1,controls detective
+What is a deterrent control?,"A control that discourages an attacker from attempting an action (e.g., warning banners, visible cameras, fences).",1,controls deterrent
+What is a directive control?,"A control that guides or mandates behavior through policy or instruction (e.g., acceptable use policy, signage).",1,controls directive
+Deterrent vs Preventive control - which actually stops the action?,Preventive stops the action from happening; Deterrent only discourages attempting it. A lock is preventive; a 'guard dog' sign is a deterrent.,1,controls types
+What is the Zero Trust model?,"A security model that assumes no implicit trust; every request is verified regardless of network location ('never trust, always verify').",1,zero-trust architecture
+"In Zero Trust, what is the Policy Enforcement Point (PEP)?","The component that allows, denies, or terminates a connection based on the decision made by the Policy Decision Point.",1,zero-trust architecture
+"In Zero Trust, what is the Policy Decision Point (PDP)?",The component (Policy Engine plus Policy Administrator) that evaluates policy and decides whether to grant access.,1,zero-trust architecture
+Control Plane vs Data Plane in Zero Trust - which makes access decisions?,"The Control Plane makes and manages access decisions (PDP, policy); the Data Plane enforces them and moves the actual traffic (PEP, subjects, resources).",1,zero-trust architecture
+What is adaptive identity in Zero Trust?,"Authentication that adjusts requirements based on context such as user behavior, device, and location risk.",1,zero-trust identity
+What is implicit trust zone elimination?,The Zero Trust principle of removing assumed trust between resources inside the same network segment.,1,zero-trust architecture
+What is a honeypot?,"A decoy system designed to lure and observe attackers, diverting them from real assets and gathering intel.",1,deception honeypot
+What is a honeynet?,A network of honeypots designed to mimic a real network and study attacker behavior at scale.,1,deception honeynet
+Honeypot vs Honeyfile - which is a decoy file?,"A honeyfile is a bait file (e.g., 'passwords.txt') that triggers an alert when accessed; a honeypot is a whole decoy system.",1,deception honeyfile
+What is a honeytoken?,"A piece of fake data (credential, API key, record) planted to detect unauthorized access when it is used.",1,deception honeytoken
+What is gap analysis?,An assessment comparing current security posture against a desired standard to identify deficiencies.,1,governance gap-analysis
+What is a change management plan?,"A formal process to request, approve, test, and document changes to systems to reduce risk and outages.",1,change-management governance
+"In change management, what is a backout plan?",A documented procedure to revert a change to its previous state if the change fails or causes problems.,1,change-management governance
+What is a maintenance window?,"A scheduled, approved time period during which changes are performed to minimize impact on operations.",1,change-management governance
+What is the purpose of digital signatures?,"To provide integrity, authentication, and non-repudiation by signing a hash with the sender's private key.",1,crypto signatures
+Indicator: 'every request re-verified regardless of location' -> ?,Zero Trust architecture.,1,zero-trust keyword
+Indicator: 'fake credential planted to detect intruders' -> ?,Honeytoken.,1,deception keyword
+What is a managerial (administrative) control?,"A control implemented through policies, procedures, and governance (e.g., risk assessments, security policy).",1,controls managerial
+What is a physical control?,"A control that protects physical assets (e.g., fences, locks, guards, bollards, lighting).",1,controls physical
+What is asymmetric encryption?,Encryption using a public/private key pair; one key encrypts and the other decrypts.,2,crypto asymmetric
+What is symmetric encryption?,"Encryption using a single shared secret key for both encryption and decryption (e.g., AES).",2,crypto symmetric
+Symmetric vs Asymmetric - which is faster for bulk data?,Symmetric is much faster and used for bulk data; asymmetric is slower and used for key exchange and signatures.,2,crypto comparison
+What does PKI stand for and provide?,"Public Key Infrastructure - the framework of CAs, certificates, and keys that manages digital trust.",2,crypto pki
+What is a Certificate Authority (CA)?,A trusted entity that issues and signs digital certificates binding identities to public keys.,2,crypto pki
+What is a Certificate Signing Request (CSR)?,A request containing a public key and identity info sent to a CA to obtain a signed certificate.,2,crypto pki
+What is a Certificate Revocation List (CRL)?,A list published by a CA of certificates that have been revoked before their expiration.,2,crypto pki
+CRL vs OCSP - which gives real-time validation?,OCSP (Online Certificate Status Protocol) provides real-time status for a single certificate; a CRL is a downloaded list that can be stale.,2,crypto pki
+What is OCSP stapling?,"A technique where the web server attaches a time-stamped OCSP response to the TLS handshake, reducing client lookups.",2,crypto pki
+What is a wildcard certificate?,"A certificate that secures a domain and all its subdomains (e.g., *.example.com).",2,crypto pki
+What is certificate pinning?,Associating a host with its expected certificate or public key to prevent acceptance of fraudulent certs.,2,crypto pki
+What is a root of trust?,"The foundational, inherently trusted component (often hardware) from which all trust in a system derives.",2,crypto trust
+What is hashing?,"A one-way function that maps data to a fixed-length digest; used for integrity, not reversible.",2,crypto hashing
+Hashing vs Encryption - which is reversible?,Encryption is reversible with a key; hashing is one-way and cannot be reversed.,2,crypto comparison
+What is salting?,Adding random data to a password before hashing to defeat rainbow tables and make identical passwords hash differently.,2,crypto hashing
+What is key stretching?,"Repeatedly hashing/processing a key or password to increase the work needed to brute-force it (e.g., PBKDF2, bcrypt).",2,crypto hashing
+What is a digital certificate?,An electronic document that binds a public key to an identity and is signed by a trusted CA.,2,crypto pki
+What is a self-signed certificate?,A certificate signed by its own creator rather than a trusted CA; not trusted by default outside the issuer.,2,crypto pki
+What is perfect forward secrecy (PFS)?,"A property where session keys are not derived from a long-term key, so a compromised key does not expose past sessions.",2,crypto tls
+What is a Hardware Security Module (HSM)?,"A dedicated, tamper-resistant device for generating, storing, and managing cryptographic keys.",2,crypto hsm
+What is a Trusted Platform Module (TPM)?,A hardware chip on a system board that stores keys and supports secure boot and disk encryption.,2,crypto tpm
+TPM vs HSM - which is built into a single endpoint?,"A TPM is a chip integrated into one device; an HSM is a separate, often networked appliance serving many systems.",2,crypto comparison
+What is a secure enclave?,"An isolated, hardware-protected area of a processor for handling sensitive data and keys.",2,crypto hardware
+What is full-disk encryption (FDE)?,"Encryption of an entire drive's contents so data is unreadable without the key (e.g., BitLocker).",2,crypto encryption
+What is transparent data encryption (TDE)?,"Encryption of data at rest in a database that is transparent to applications, encrypting data and log files.",2,crypto data
+What is tokenization?,"Replacing sensitive data with a non-sensitive token that has no exploitable value, with the mapping stored securely elsewhere.",2,crypto data
+Tokenization vs Encryption - which replaces data with an unrelated value?,Tokenization swaps data for a meaningless token with no mathematical relationship; encryption mathematically transforms data using a key.,2,crypto comparison
+What is data masking?,"Obscuring specific data within a field (e.g., showing only the last 4 digits of an SSN) while keeping format.",2,crypto data
+What is steganography?,"Hiding a message or data within another file (image, audio, video) so its existence is concealed.",2,crypto stego
+What is a blockchain?,"A distributed, append-only ledger where blocks are cryptographically linked, providing integrity and an open public record.",2,crypto blockchain
+What is a digital signature created with?,The sender's private key signing a hash of the message; verified with the sender's public key.,2,crypto signatures
+What is key escrow?,A practice of storing copies of cryptographic keys with a trusted third party for recovery or legal access.,2,crypto keys
+What is an ephemeral key?,"A temporary key used for a single session or exchange and then discarded, supporting forward secrecy.",2,crypto keys
+"Indicator: 'last 4 digits shown, rest hidden' -> ?",Data masking.,2,crypto keyword
+Indicator: 'message hidden inside an image file' -> ?,Steganography.,2,crypto keyword
+Indicator: 'PAN replaced with a meaningless surrogate value' -> ?,Tokenization.,2,crypto keyword
+What is AES?,"Advanced Encryption Standard - a symmetric block cipher with 128/192/256-bit keys, the modern standard.",2,crypto symmetric
+What is RSA?,An asymmetric algorithm used for encryption and digital signatures based on factoring large primes.,2,crypto asymmetric
+What is ECC and why use it?,"Elliptic Curve Cryptography - asymmetric crypto giving equivalent strength to RSA with smaller keys, ideal for mobile/IoT.",2,crypto asymmetric
+What is a nonce in cryptography?,A 'number used once' included to ensure uniqueness and prevent replay in cryptographic operations.,2,crypto keys
+What is the difference between a block and stream cipher?,A block cipher encrypts fixed-size blocks; a stream cipher encrypts data one bit/byte at a time.,2,crypto symmetric
+What architecture model segments a network by trust level?,"Network segmentation / security zones (e.g., DMZ, internal, restricted).",2,architecture segmentation
+What is a DMZ (screened subnet)?,"A buffer network exposed to the internet that hosts public-facing services, isolating them from the internal LAN.",2,architecture segmentation
+What is microsegmentation?,"Dividing a network into small, isolated zones (often per workload) to limit lateral movement.",2,architecture segmentation
+What is a SASE architecture?,Secure Access Service Edge - converged cloud-delivered networking and security (SD-WAN plus SWG plus CASB plus ZTNA).,2,architecture cloud
+What is a CASB?,Cloud Access Security Broker - a control point that enforces security policy between users and cloud services.,2,architecture cloud
+What is SD-WAN?,"Software-Defined Wide Area Network - centrally managed, software-driven WAN routing across multiple transport links.",2,architecture network
+What is IaC (Infrastructure as Code)?,Managing and provisioning infrastructure through machine-readable definition files rather than manual processes.,2,architecture cloud
+What is serverless computing?,A cloud model where the provider runs code on demand (functions) without the customer managing servers.,2,architecture cloud
+What is a Type 1 vs Type 2 hypervisor?,Type 1 runs directly on hardware (bare-metal); Type 2 runs on top of a host OS.,2,architecture virtualization
+What is VM escape?,An attack where code breaks out of a virtual machine to access the host or other VMs.,2,architecture virtualization
+What is containerization?,Packaging an application with its dependencies into an isolated container that shares the host OS kernel.,2,architecture containers
+What is a high-availability (HA) cluster?,"A group of systems configured so that if one fails, another takes over to maintain service.",2,resilience availability
+What is load balancing?,Distributing traffic across multiple servers to optimize performance and provide redundancy.,2,resilience availability
+Active-active vs Active-passive clustering - which keeps a node idle?,Active-passive keeps a standby node idle until failover; active-active uses all nodes simultaneously for load and redundancy.,2,resilience availability
+What is RAID 1 vs RAID 5?,"RAID 1 mirrors data across drives; RAID 5 stripes data with distributed parity, tolerating one drive failure.",2,resilience storage
+What is a cold site vs hot site?,A cold site has space/power but no equipment ready; a hot site is fully operational and ready for immediate failover.,2,resilience dr
+Hot site vs Warm site - which has data already synced?,A hot site is fully operational with real-time data; a warm site has equipment but requires setup and data restore.,2,resilience dr
+What is RPO (Recovery Point Objective)?,The maximum acceptable amount of data loss measured in time (how far back the last good backup must be).,2,resilience metrics
+What is RTO (Recovery Time Objective)?,The maximum acceptable time to restore a system or service after an outage.,2,resilience metrics
+RPO vs RTO - which measures tolerable data loss?,RPO measures tolerable data loss (time); RTO measures tolerable downtime (time to recover).,2,resilience metrics
+What is MTBF?,Mean Time Between Failures - the average operational time between failures of a repairable system.,2,resilience metrics
+What is MTTR?,Mean Time To Repair - the average time required to fix a failed component and restore service.,2,resilience metrics
+What is journaling in the context of backups?,"Recording changes/transactions so a system can be recovered to a consistent state, often used in databases and filesystems.",2,resilience backup
+What is a snapshot?,A point-in-time copy of a system's state or storage that can be used to restore to that moment.,2,resilience backup
+What is a full vs incremental vs differential backup?,Full copies everything; incremental copies changes since the last backup of any kind; differential copies changes since the last full backup.,2,resilience backup
+Incremental vs Differential - which makes restore faster but backups larger?,Differential makes restore faster (full plus one differential) but each backup grows larger; incremental backups are small but restore needs the full plus every increment.,2,resilience backup
+What is geographic dispersion of backups?,Storing backups in separate physical locations to survive regional disasters.,2,resilience backup
+What is the role of a UPS vs a generator?,A UPS provides immediate short-term battery power; a generator provides sustained long-term power during outages.,2,resilience power
+What is the 3-2-1 backup rule?,"Keep 3 copies of data, on 2 different media types, with 1 copy stored offsite.",2,resilience backup
+Indicator: 'we can lose at most 1 hour of data' -> which metric?,RPO (Recovery Point Objective).,2,resilience keyword
+Indicator: 'breaking out of a VM to reach the host' -> ?,VM escape.,2,architecture keyword
+What is phishing?,A social engineering attack using fraudulent emails or messages to trick users into revealing data or clicking malicious links.,2,attacks social-engineering
+What is spear phishing?,Phishing targeted at a specific individual or organization using personalized information.,2,attacks social-engineering
+What is whaling?,Spear phishing that specifically targets high-profile executives or 'big fish' like a CEO or CFO.,2,attacks social-engineering
+What is smishing vs vishing?,Smishing is phishing via SMS text messages; vishing is phishing via voice calls.,2,attacks social-engineering
+What is pretexting?,Creating a fabricated scenario or false identity to manipulate a victim into divulging information.,2,attacks social-engineering
+What is a watering hole attack?,Compromising a website frequently visited by the target group to infect those specific users.,2,attacks social-engineering
+What is typosquatting?,Registering domains with common misspellings of legitimate sites to catch mistyped traffic.,2,attacks social-engineering
+What is business email compromise (BEC)?,An attack where a spoofed or compromised executive account is used to trick employees into wire transfers or data disclosure.,2,attacks social-engineering
+What is a supply chain attack?,"Compromising a trusted vendor, software, or hardware to reach the ultimate target downstream.",2,attacks supply-chain
+Watering hole vs Phishing - what is the distinction?,Phishing delivers bait directly to the victim; a watering hole infects a site the victim already trusts and visits.,2,attacks comparison
+What is a logic bomb?,Malicious code that executes when a specific condition or time is met.,2,attacks malware
+What is a rootkit?,"Malware that gains privileged access and hides its presence, often at the kernel or firmware level.",2,attacks malware
+What is ransomware?,Malware that encrypts data and demands payment for the decryption key.,2,attacks malware
+What is a fileless malware attack?,"Malware that runs in memory using legitimate tools (e.g., PowerShell) without writing files to disk.",2,attacks malware
+Virus vs Worm - which self-propagates without a host file?,A worm self-replicates and spreads across networks on its own; a virus requires a host file and user action to spread.,2,attacks malware
+What is a keylogger?,Malware or hardware that records keystrokes to capture credentials and sensitive input.,2,attacks malware
+What is a backdoor?,A hidden method of bypassing normal authentication to gain remote access to a system.,2,attacks malware
+What is a Trojan?,Malware disguised as legitimate software that performs hidden malicious actions when run.,2,attacks malware
+Indicator: 'CEO impersonated to authorize an urgent wire transfer' -> ?,Business Email Compromise (BEC) / whaling.,2,attacks keyword
+Indicator: 'malware that only runs in memory via PowerShell' -> ?,Fileless malware.,2,attacks keyword
+What is multifactor authentication (MFA)?,Authentication requiring two or more factors from different categories (something you know/have/are).,4,iam mfa
+What are the authentication factor categories?,"Something you know, something you have, something you are, somewhere you are, and something you do.",4,iam mfa
+Is a password plus PIN multifactor?,"No - both are 'something you know', so it is single-factor multi-step, not true MFA.",4,iam mfa
+What is SSO (Single Sign-On)?,An authentication scheme letting a user log in once to access multiple independent systems.,4,iam sso
+What is federation?,"Linking identity across organizations/domains so users authenticate with their home identity provider (e.g., SAML).",4,iam federation
+What is SAML?,Security Assertion Markup Language - an XML-based standard for exchanging authentication/authorization between IdP and SP for SSO.,4,iam federation
+What is OAuth?,An authorization framework that lets apps access resources on a user's behalf without sharing credentials.,4,iam oauth
+OAuth vs OpenID Connect - which handles authentication?,OpenID Connect adds an authentication/identity layer on top of OAuth; OAuth alone handles authorization (delegated access).,4,iam oauth
+What is RADIUS?,Remote Authentication Dial-In User Service - a AAA protocol commonly used for network access authentication.,4,iam aaa
+What is TACACS+?,"A Cisco AAA protocol that separates authentication, authorization, and accounting and encrypts the full payload.",4,iam aaa
+RADIUS vs TACACS+ - which encrypts the entire packet?,TACACS+ encrypts the entire packet body; RADIUS only encrypts the password field.,4,iam aaa
+What is 802.1X?,A port-based network access control standard that authenticates devices before granting LAN/WLAN access.,4,iam network-access
+What is RBAC?,"Role-Based Access Control - permissions assigned to roles, and users gain access by being members of roles.",4,iam access-control
+What is ABAC?,"Attribute-Based Access Control - access decisions based on attributes of user, resource, action, and environment.",4,iam access-control
+What is MAC (Mandatory Access Control)?,Access enforced by the system based on classification labels and clearances; users cannot change permissions.,4,iam access-control
+What is DAC (Discretionary Access Control)?,Access controlled at the owner's discretion; the resource owner grants permissions to others.,4,iam access-control
+MAC vs DAC - which lets the data owner set permissions?,DAC lets the owner decide who gets access; MAC enforces access centrally via labels and cannot be overridden by users.,4,iam access-control
+What is the principle behind 'just-in-time' (JIT) permissions?,Granting elevated access only at the moment it is needed and revoking it immediately after.,4,iam pam
+What is Privileged Access Management (PAM)?,"A solution that secures, controls, and monitors access for privileged/admin accounts (vaulting, JIT, session recording).",4,iam pam
+What is password vaulting?,Storing privileged credentials in a secure vault and brokering access so users never see the raw password.,4,iam pam
+What is provisioning vs deprovisioning?,Provisioning creates and grants accounts/access; deprovisioning revokes and removes them when no longer needed.,4,iam lifecycle
+What is access attestation/recertification?,A periodic review where managers confirm users still need their current access rights.,4,iam governance
+What is a TOTP?,Time-based One-Time Password - a short-lived code generated from a shared secret and the current time.,4,iam mfa
+TOTP vs HOTP - which changes based on a counter?,HOTP changes based on an incrementing counter; TOTP changes based on time intervals.,4,iam mfa
+What is a hardware security key (FIDO2)?,A physical authenticator using public-key cryptography for phishing-resistant MFA.,4,iam mfa
+What is passwordless authentication?,"Authentication without a traditional password, using factors like biometrics, security keys, or magic links.",4,iam mfa
+What is EDR?,"Endpoint Detection and Response - continuous endpoint monitoring, detection, and automated response to threats.",4,endpoint edr
+What is XDR?,"Extended Detection and Response - correlating telemetry across endpoints, network, cloud, and identity for unified detection.",4,endpoint xdr
+EDR vs XDR - which correlates across multiple security layers?,"XDR correlates across endpoints, network, cloud, and email; EDR focuses on endpoints alone.",4,endpoint comparison
+What is a SIEM?,"Security Information and Event Management - aggregates, correlates, and analyzes logs/events for alerting and investigation.",4,monitoring siem
+What is SOAR?,"Security Orchestration, Automation, and Response - automates and orchestrates incident response workflows and playbooks.",4,monitoring soar
+SIEM vs SOAR - which automates the response actions?,"SOAR automates and orchestrates response via playbooks; SIEM focuses on collecting, correlating, and alerting on events.",4,monitoring comparison
+What is a DLP solution?,Data Loss Prevention - detects and blocks unauthorized movement or exfiltration of sensitive data.,4,data dlp
+What is a NGFW?,"Next-Generation Firewall - a firewall adding deep packet inspection, application awareness, and IPS capabilities.",4,network firewall
+What is a WAF?,Web Application Firewall - filters and monitors HTTP traffic to protect web apps from attacks like SQLi and XSS.,4,network firewall
+What is an IDS vs IPS?,An IDS detects and alerts on malicious traffic; an IPS detects and actively blocks it inline.,4,network ids-ips
+IDS vs IPS - which sits inline and blocks traffic?,An IPS is inline and can block; an IDS is typically out-of-band and only alerts.,4,network ids-ips
+What is a jump server (bastion host)?,A hardened intermediary host used to securely access and administer devices in a protected zone.,4,network hardening
+What is network access control (NAC)?,"A system that enforces policy on devices attempting to connect, checking posture before granting access.",4,network nac
+What is port security on a switch?,A feature that limits which MAC addresses can use a switch port to prevent unauthorized devices.,4,network hardening
+What is DNS sinkholing?,Redirecting malicious domain queries to a controlled IP to block and observe malware callbacks.,4,network dns
+What is a proxy server?,"An intermediary that forwards client requests, providing filtering, caching, and anonymity.",4,network proxy
+Forward proxy vs Reverse proxy - which protects backend servers?,A reverse proxy sits in front of servers to protect and balance them; a forward proxy sits in front of clients to filter outbound traffic.,4,network proxy
+What is a VPN?,Virtual Private Network - an encrypted tunnel that secures traffic over an untrusted network.,4,network vpn
+What is split tunneling?,A VPN config where only some traffic goes through the tunnel while the rest goes directly to the internet.,4,network vpn
+Full tunnel vs Split tunnel - which sends all traffic through the VPN?,Full tunnel routes all traffic through the VPN; split tunnel only routes specified traffic and lets the rest go direct.,4,network vpn
+What is IPSec?,A protocol suite that secures IP communications via authentication and encryption (AH and ESP).,4,network vpn
+What is the difference between IPSec AH and ESP?,AH provides integrity and authentication only; ESP provides confidentiality (encryption) plus integrity.,4,network vpn
+What is TLS used for?,"Encrypting data in transit for protocols like HTTPS, providing confidentiality and integrity.",4,network tls
+What is SNMPv3 vs SNMPv2?,SNMPv3 adds authentication and encryption; SNMPv2 sends data in cleartext with weak community strings.,4,network monitoring
+What is a SIEM correlation rule?,Logic that links multiple events to identify a pattern indicating a potential security incident.,4,monitoring siem
+What is log aggregation?,Collecting logs from multiple sources into a central location for analysis and retention.,4,monitoring logging
+What is the goal of SIEM alert tuning?,"Reducing false positives and noise so analysts focus on meaningful, actionable alerts.",4,monitoring siem
+What is sandboxing?,Running suspicious code in an isolated environment to observe behavior without risking production.,4,malware-analysis sandbox
+What is application allow-listing?,Permitting only explicitly approved applications to run and blocking everything else by default.,4,endpoint hardening
+Allow-list vs Deny-list - which is more secure by default?,"Allow-listing is more secure (default deny, only approved apps run); deny-listing blocks known-bad but allows everything else.",4,endpoint comparison
+What is patch management?,"The process of identifying, testing, and deploying updates to fix vulnerabilities and bugs.",4,endpoint patching
+What is endpoint hardening?,"Reducing an endpoint's attack surface by disabling unused services, applying patches, and enforcing config baselines.",4,endpoint hardening
+What is a configuration baseline?,A documented standard secure configuration that systems are measured and enforced against.,4,hardening baseline
+What is FIM (File Integrity Monitoring)?,A control that detects unauthorized changes to critical files by comparing against known-good hashes.,4,monitoring fim
+What is host-based vs network-based firewall?,A host-based firewall runs on and protects a single device; a network-based firewall protects a whole segment at the perimeter.,4,network firewall
+What is an air gap?,Physically isolating a system or network from unsecured networks to prevent remote access.,4,architecture isolation
+What is a screened subnet's purpose?,To expose public services while keeping the internal network isolated behind a second layer of filtering.,4,architecture segmentation
+What is SSL/TLS inspection (decryption)?,"Decrypting encrypted traffic at a security device to inspect it for threats, then re-encrypting it.",4,network inspection
+What is geofencing in security?,Restricting access or actions based on a device's geographic location.,4,mobile geofencing
+What is MDM (Mobile Device Management)?,"A platform to enforce policy, configuration, and remote wipe on mobile devices.",4,mobile mdm
+What is containerization on mobile devices?,"Separating corporate and personal data on a device into isolated, managed containers.",4,mobile mdm
+BYOD vs COPE - which is company-owned?,"COPE (Corporate-Owned, Personally Enabled) is company-owned; BYOD (Bring Your Own Device) is employee-owned.",4,mobile deployment
+What is remote wipe?,Erasing data from a lost or stolen device remotely to prevent data exposure.,4,mobile mdm
+What is a captive portal?,"A web page users must interact with before being granted network access, common on guest Wi-Fi.",4,network wireless
+What is WPA3?,"The latest Wi-Fi security protocol, using SAE for stronger key exchange and protection against offline attacks.",4,wireless wpa3
+WPA2-PSK vs WPA3-SAE - which resists offline dictionary attacks?,WPA3's SAE (Simultaneous Authentication of Equals) resists offline dictionary attacks; WPA2-PSK is vulnerable to them.,4,wireless comparison
+What is EAP in wireless security?,Extensible Authentication Protocol - a framework supporting multiple authentication methods over 802.1X.,4,wireless eap
+What is a rogue access point?,"An unauthorized wireless AP connected to a network, creating a security gap.",4,wireless attacks
+What is an evil twin attack?,A malicious AP impersonating a legitimate SSID to trick users into connecting.,4,wireless attacks
+Rogue AP vs Evil Twin - which impersonates a legitimate SSID?,An evil twin clones a legitimate SSID to lure users; a rogue AP is simply an unauthorized AP on the network.,4,wireless comparison
+Indicator: 'impossible travel' -> ?,Compromised credentials / account takeover (login from two distant locations in an impossible timeframe).,4,monitoring keyword
+Indicator: 'login from two countries 5 minutes apart' -> ?,Impossible travel - indicator of compromised credentials.,4,monitoring keyword
+Indicator: 'isolate suspicious code to watch its behavior' -> ?,Sandboxing.,4,malware-analysis keyword
+Indicator: 'only approved apps may execute' -> ?,Application allow-listing.,4,endpoint keyword
+What is SCAP?,Security Content Automation Protocol - a standard for automated vulnerability management and policy compliance.,4,monitoring scap
+What is a NetFlow record used for?,"Capturing metadata about network traffic flows for analysis, monitoring, and anomaly detection.",4,monitoring network
+What is a SIEM use case for a brute-force alert?,Detecting many failed logins followed by a success from the same source within a short window.,4,monitoring siem
+What is the security goal of network segmentation?,Limiting lateral movement and containing breaches by isolating systems by function or trust.,4,architecture segmentation
+What is COPE in mobile deployment models?,"Corporate-Owned, Personally Enabled - the company owns the device and allows limited personal use.",4,mobile deployment
+What is a security baseline deviation alert?,Notification that a system's configuration has drifted from its approved secure baseline.,4,hardening baseline
+What is SQL injection?,Inserting malicious SQL into an input to manipulate or extract data from a database.,3,vulnerabilities injection
+What is cross-site scripting (XSS)?,Injecting malicious scripts into web pages that execute in other users' browsers.,3,vulnerabilities xss
+What is cross-site request forgery (CSRF)?,Tricking an authenticated user's browser into submitting an unwanted request to a trusted site.,3,vulnerabilities csrf
+XSS vs CSRF - which executes script in the victim's browser?,XSS injects and runs malicious script in the victim's browser; CSRF abuses the victim's existing session to forge a request.,3,vulnerabilities comparison
+What is a buffer overflow?,"Writing more data than a buffer can hold, overwriting adjacent memory to crash or execute code.",3,vulnerabilities memory
+What is a race condition (TOCTOU)?,A flaw where the result depends on timing; Time-Of-Check to Time-Of-Use exploits the gap between checking and using a resource.,3,vulnerabilities race-condition
+What is privilege escalation?,"Gaining higher access rights than intended, either vertically (to admin) or horizontally (to a peer account).",3,vulnerabilities escalation
+What is a zero-day vulnerability?,"A flaw unknown to the vendor with no available patch, exploited before defenders can respond.",3,vulnerabilities zero-day
+What is a CVE?,Common Vulnerabilities and Exposures - a standardized identifier for a publicly known vulnerability.,3,vulnerabilities cve
+What is CVSS?,Common Vulnerability Scoring System - a 0 to 10 score representing a vulnerability's severity.,3,vulnerabilities cvss
+What is a false positive in vulnerability scanning?,A reported vulnerability that does not actually exist on the target.,3,vulnerabilities scanning
+False positive vs False negative - which is the missed real vulnerability?,A false negative is a real vulnerability the scanner missed; a false positive is a reported issue that isn't real.,3,vulnerabilities comparison
+What is a credentialed vs non-credentialed scan?,"A credentialed scan logs in for a deeper, accurate view; a non-credentialed scan sees only what an outsider would.",3,vulnerabilities scanning
+What is penetration testing?,Authorized simulated attacks to find and exploit vulnerabilities and demonstrate real impact.,3,vulnerabilities pentest
+Vulnerability scan vs Penetration test - what is the difference?,A vuln scan identifies potential weaknesses automatically; a pentest actively exploits them to prove impact.,3,vulnerabilities comparison
+What is a SQL injection mitigation?,Using parameterized queries/prepared statements and input validation to separate code from data.,3,vulnerabilities mitigation
+What is input validation?,Checking that input conforms to expected format and type before processing to prevent injection attacks.,3,vulnerabilities mitigation
+What is a directory traversal attack?,Using '../' sequences to access files outside the intended web root.,3,vulnerabilities web
+What is an on-path (man-in-the-middle) attack?,An attacker intercepts and possibly alters communication between two parties without their knowledge.,3,attacks on-path
+What is ARP poisoning?,Sending forged ARP messages to associate the attacker's MAC with another host's IP for interception.,3,attacks on-path
+What is DNS poisoning (spoofing)?,Corrupting DNS resolution to redirect users to malicious sites.,3,attacks dns
+What is a replay attack?,Capturing valid data transmission and retransmitting it to impersonate or duplicate an action.,3,attacks replay
+What is a downgrade attack?,"Forcing a connection to use a weaker, vulnerable protocol or cipher than both parties support.",3,attacks downgrade
+What is a DDoS attack?,Distributed Denial of Service - overwhelming a target with traffic from many sources to disrupt availability.,3,attacks ddos
+What is an amplification (reflection) attack?,"Sending small spoofed requests to servers that send large responses to the victim, multiplying traffic.",3,attacks ddos
+What is a pass-the-hash attack?,Using a captured password hash to authenticate without knowing the plaintext password.,3,attacks credential
+What is credential stuffing?,Using stolen username/password pairs from one breach to try logging into other services.,3,attacks credential
+Credential stuffing vs Password spraying - which uses one password against many accounts?,Password spraying tries one common password across many accounts; credential stuffing replays many leaked credential pairs.,3,attacks comparison
+What is a birthday attack?,A cryptographic attack exploiting hash collision probability to find two inputs with the same hash.,3,attacks crypto
+What is a collision in hashing?,"When two different inputs produce the same hash output, undermining integrity guarantees.",3,attacks crypto
+What is a brute-force attack?,Systematically trying all possible values (passwords/keys) until the correct one is found.,3,attacks credential
+What is a dictionary attack?,Trying passwords from a precompiled list of likely words and common passwords.,3,attacks credential
+What is a rainbow table?,A precomputed table of hashes used to reverse hashes to plaintext quickly; defeated by salting.,3,attacks credential
+What is a malicious update (supply chain code injection)?,Inserting malicious code into a legitimate software update to compromise all who install it.,3,attacks supply-chain
+What is shadow IT?,Hardware or software used within an organization without IT's knowledge or approval.,3,vulnerabilities shadow-it
+What is an indicator of compromise (IoC)?,"Forensic evidence that a system has been breached (e.g., unusual outbound traffic, known-bad hashes).",3,vulnerabilities ioc
+Indicator: 'forged ARP reply maps attacker MAC to gateway IP' -> ?,ARP poisoning (on-path attack).,3,attacks keyword
+Indicator: 'one common password tried against the whole employee directory' -> ?,Password spraying.,3,attacks keyword
+"Indicator: 'small spoofed request, huge response sent to victim' -> ?",Amplification/reflection DDoS attack.,3,attacks keyword
+Indicator: 'flaw exploited before a patch exists' -> ?,Zero-day.,3,vulnerabilities keyword
+What is fuzzing?,Sending malformed or random input to an application to discover crashes and vulnerabilities.,3,vulnerabilities testing
+What is a SBOM?,Software Bill of Materials - an inventory of components and dependencies in software for supply-chain visibility.,3,vulnerabilities sbom
+What is threat intelligence?,"Evidence-based knowledge about threats (TTPs, IoCs) used to inform defensive decisions.",3,threat-intel fundamentals
+What is OSINT?,Open-Source Intelligence - intelligence gathered from publicly available sources.,3,threat-intel osint
+What is the MITRE ATT&CK framework?,A knowledge base of adversary tactics and techniques used to map and understand attacker behavior.,3,threat-intel mitre
+What is a threat actor's 'TTP'?,"Tactics, Techniques, and Procedures - the behavioral patterns describing how an actor operates.",3,threat-intel ttp
+Nation-state vs Hacktivist - which is motivated by ideology?,A hacktivist is driven by ideology or a cause; a nation-state actor is driven by geopolitical/strategic goals and is well-resourced.,3,threat-intel actors
+What is an insider threat?,"A risk posed by someone with legitimate access (employee, contractor) who misuses it.",3,threat-intel actors
+What is shadow data?,"Unmanaged copies of data outside official systems, increasing exposure risk.",3,vulnerabilities shadow-it
+What is an unsecured API as a vulnerability?,"An exposed API lacking proper authentication, rate limiting, or input validation, enabling abuse.",3,vulnerabilities api
+What is a default credential vulnerability?,"Leaving factory-set usernames/passwords in place, which attackers can easily exploit.",3,vulnerabilities config
+Indicator: 'adversary technique mapped to Tactic/Technique IDs' -> ?,MITRE ATT&CK.,3,threat-intel keyword
+What is data sovereignty?,The principle that data is subject to the laws of the country where it is physically stored.,5,governance data-sovereignty
+What is risk appetite?,The amount and type of risk an organization is willing to accept to pursue its objectives.,5,risk appetite
+What is risk tolerance?,The acceptable variation around the risk appetite for a specific risk or objective.,5,risk tolerance
+What is qualitative vs quantitative risk analysis?,"Qualitative uses subjective ratings (high/med/low); quantitative uses numeric/monetary values (ALE, SLE).",5,risk analysis
+What is SLE (Single Loss Expectancy)?,The monetary loss expected from a single occurrence of a risk (Asset Value times Exposure Factor).,5,risk quantitative
+What is ALE (Annualized Loss Expectancy)?,The expected yearly loss from a risk (SLE times ARO).,5,risk quantitative
+What is ARO?,Annualized Rate of Occurrence - how many times per year a risk is expected to occur.,5,risk quantitative
+"If SLE is $10,000 and ARO is 2, what is ALE?","$20,000 - ALE = SLE times ARO.",5,risk quantitative
+What are the four risk response strategies?,"Accept, Avoid, Transfer (share), and Mitigate.",5,risk response
+Risk Transfer vs Risk Acceptance - which uses insurance?,"Risk transfer shifts the risk to a third party (e.g., insurance); acceptance means choosing to bear the risk as-is.",5,risk response
+What is a risk register?,"A documented record of identified risks, their assessment, owners, and treatment plans.",5,risk register
+What is inherent vs residual risk?,Inherent risk exists before controls; residual risk remains after controls are applied.,5,risk register
+What is a Business Impact Analysis (BIA)?,An analysis identifying critical functions and the impact of their disruption to prioritize recovery.,5,governance bia
+"What is the difference between a policy, standard, and procedure?",A policy states intent; a standard defines mandatory specifics; a procedure gives step-by-step instructions.,5,governance documents
+What is an SLA?,Service Level Agreement - a contract defining expected service performance and remedies.,5,governance agreements
+What is an MOU?,Memorandum of Understanding - a non-binding agreement outlining intentions between parties.,5,governance agreements
+What is an MSA?,Master Service Agreement - an overarching contract governing the general terms of an ongoing relationship.,5,governance agreements
+What is a BPA?,"Business Partners Agreement - defines terms, responsibilities, and profit sharing between partners.",5,governance agreements
+What is an NDA?,Non-Disclosure Agreement - a contract protecting confidential information from disclosure.,5,governance agreements
+What is due diligence vs due care?,Due diligence is investigating and understanding risks; due care is taking reasonable action to address them.,5,governance terms
+What is a data owner?,"The senior individual accountable for a data set's classification, protection, and use.",5,governance data-roles
+What is a data custodian?,"The role responsible for the technical handling, storage, and protection of data per the owner's direction.",5,governance data-roles
+What is a data processor vs data controller (GDPR)?,The controller determines why/how data is processed; the processor handles data on the controller's behalf.,5,governance privacy
+What is data classification?,"Labeling data by sensitivity (e.g., public, internal, confidential, restricted) to apply appropriate controls.",5,governance classification
+What is GDPR?,General Data Protection Regulation - EU privacy law governing personal data processing and individual rights.,5,governance privacy
+What is PCI DSS?,Payment Card Industry Data Security Standard - security requirements for handling cardholder data.,5,governance compliance
+What is the right to be forgotten?,A privacy right allowing individuals to request deletion of their personal data.,5,governance privacy
+What is a data retention policy?,Rules defining how long data is kept and when it must be securely destroyed.,5,governance retention
+What is data minimization?,Collecting and retaining only the personal data strictly necessary for a stated purpose.,5,governance privacy
+What is the purpose of a third-party risk assessment?,Evaluating the security posture and risk introduced by vendors and partners before and during engagement.,5,governance third-party
+What is a penetration test rules of engagement (RoE)?,"A document defining the scope, timing, methods, and limits of an authorized penetration test.",5,governance pentest
+What is the difference between an audit and an assessment?,"An audit is a formal, often external compliance check against a standard; an assessment is a broader evaluation of posture.",5,governance audit
+What is attestation in compliance?,A formal declaration confirming that controls or statements are true and meet requirements.,5,governance compliance
+What is the chain of custody?,"Documentation tracking the seizure, control, transfer, and analysis of evidence to ensure admissibility.",5,governance forensics
+What is legal hold?,"A process to preserve all relevant data when litigation is anticipated, suspending normal deletion.",5,governance forensics
+What is the order of volatility in forensics?,Collecting evidence from most volatile (CPU/RAM) to least volatile (archived media) to preserve data.,5,governance forensics
+What is e-discovery?,"The process of identifying, collecting, and producing electronic information for legal proceedings.",5,governance forensics
+What is a tabletop exercise?,A discussion-based session walking through an incident response scenario to test the plan without live action.,5,incident-response exercises
+What are the NIST incident response phases?,"Preparation; Detection and Analysis; Containment, Eradication, and Recovery; Post-Incident Activity.",5,incident-response phases
+What is the containment phase of IR?,Limiting the spread and impact of an incident to prevent further damage.,5,incident-response phases
+What is the lessons-learned (post-incident) phase?,"Reviewing the incident response to improve processes, controls, and the plan.",5,incident-response phases
+What is a root cause analysis?,"A structured investigation to determine the underlying cause of an incident, not just symptoms.",5,incident-response analysis
+Indicator: 'preserve all data because litigation is expected' -> ?,Legal hold.,5,governance keyword
+Indicator: 'SLE multiplied by ARO' -> ?,ALE (Annualized Loss Expectancy).,5,risk keyword
+Indicator: 'discussion-based walkthrough of an incident scenario' -> ?,Tabletop exercise.,5,incident-response keyword

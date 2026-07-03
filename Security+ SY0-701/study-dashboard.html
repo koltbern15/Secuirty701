@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA Security+ SY0-701 — Study Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b1120; --bg-1:#0f172a; --surface:#1e293b; --border:#334155;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --amber:#f59e0b; --cyan:#06b6d4; --purple:#a855f7;
+    --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg-0);color:var(--text);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+  body{padding:24px;max-width:1400px;margin:0 auto}
+  a{color:var(--cyan)}
+  h1{font-size:24px;font-weight:700;letter-spacing:-.02em}
+  h2{font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:14px}
+  h3{font-size:14px;font-weight:600}
+  .mono{font-family:var(--mono)}
+  .muted{color:var(--muted)}
+
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+  header .sub{color:var(--muted);font-size:13px;margin-top:4px;font-family:var(--mono)}
+  .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+  .layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+  .main-col{display:flex;flex-direction:column;gap:20px}
+
+  .card{background:var(--bg-1);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .card.surface{background:var(--surface)}
+
+  /* Buttons & inputs */
+  button{font-family:var(--sans);cursor:pointer;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:8px 14px;font-size:13px;font-weight:500;transition:.15s}
+  button:hover{border-color:var(--blue)}
+  button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  button.primary:hover{background:#2563eb}
+  button.danger{background:transparent;border-color:var(--red);color:var(--red)}
+  button.danger:hover{background:rgba(239,68,68,.12)}
+  input[type=number],input[type=date]{font-family:var(--mono);background:var(--bg-0);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;width:100%}
+  input:focus{outline:none;border-color:var(--blue)}
+  input[type=range]{width:100%;accent-color:var(--blue)}
+
+  /* Overall readiness */
+  .readiness-top{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .gauge{position:relative;width:140px;height:140px;flex-shrink:0}
+  .gauge svg{transform:rotate(-90deg)}
+  .gauge .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gauge .val .num{font-family:var(--mono);font-size:30px;font-weight:600}
+  .gauge .val .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .readiness-blurb{flex:1;min-width:200px}
+  .pill{display:inline-block;font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:999px;font-weight:600}
+
+  .domain-row{display:grid;grid-template-columns:1fr 56px 1fr 70px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+  .domain-row:last-child{border-bottom:none}
+  .domain-name{font-size:13px;font-weight:500}
+  .domain-name .code{font-family:var(--mono);color:var(--cyan);margin-right:6px}
+  .weight-badge{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+  .score-cell{display:flex;align-items:center;gap:10px}
+  .score-num input{width:64px;text-align:center}
+  .bar{height:8px;border-radius:999px;background:var(--bg-0);overflow:hidden;flex:1}
+  .bar > span{display:block;height:100%;border-radius:999px;transition:width .25s}
+
+  /* Planner */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+  table.plan{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.plan th,table.plan td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--border)}
+  table.plan th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  table.plan td.num,table.plan th.num{text-align:right;font-family:var(--mono)}
+  table.plan tr:last-child td{border-bottom:none}
+  .tot-row td{font-weight:600;border-top:1px solid var(--border);border-bottom:none!important}
+  .note{font-size:12px;color:var(--muted);background:var(--bg-0);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 12px;margin-top:14px}
+
+  /* Countdown */
+  .countdown-out{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .days-box{background:var(--bg-0);border:1px solid var(--border);border-radius:10px;padding:14px 22px;text-align:center;min-width:120px}
+  .days-box .n{font-family:var(--mono);font-size:34px;font-weight:600;line-height:1}
+  .days-box .l{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:4px}
+  .pace{flex:1;min-width:220px;font-size:14px}
+
+  /* Checklist */
+  .ring-head{display:flex;gap:18px;align-items:center;margin-bottom:18px}
+  .ring{position:relative;width:96px;height:96px;flex-shrink:0}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:22px;font-weight:600}
+  .obj-group{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;background:var(--bg-0)}
+  .obj-head{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;user-select:none}
+  .obj-head:hover{background:rgba(59,130,246,.06)}
+  .obj-head .chev{transition:.2s;color:var(--muted);font-size:12px}
+  .obj-head.open .chev{transform:rotate(90deg)}
+  .obj-head .dtitle{flex:1;font-size:14px;font-weight:600}
+  .obj-head .dtitle .dcode{font-family:var(--mono);color:var(--cyan);margin-right:8px}
+  .obj-head .dcount{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .obj-head .mini-bar{width:80px;height:6px;border-radius:999px;background:var(--surface);overflow:hidden}
+  .obj-head .mini-bar > span{display:block;height:100%;background:var(--green);transition:width .25s}
+  .obj-body{display:none;padding:4px 14px 12px 14px}
+  .obj-body.open{display:block}
+  .sub{margin:10px 0 4px}
+  .sub > .sub-title{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);font-weight:600;margin-bottom:6px}
+  .check{display:flex;align-items:flex-start;gap:10px;padding:5px 0;font-size:13px;cursor:pointer}
+  .check input{margin-top:3px;width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+  .check.done span{color:var(--muted);text-decoration:line-through}
+  .check span{transition:.15s}
+
+  /* Rail */
+  .rail{display:flex;flex-direction:column;gap:16px;position:sticky;top:24px}
+  .rail .card h2{margin-bottom:10px}
+  .rail ul{list-style:none;font-size:13px;display:flex;flex-direction:column;gap:8px}
+  .rail li{display:flex;gap:8px;align-items:flex-start}
+  .rail li::before{content:'▸';color:var(--blue);flex-shrink:0}
+  .rail.nottested li::before{content:'✕';color:var(--red)}
+  .rail .tag{font-family:var(--mono);font-size:11px;color:var(--amber)}
+  kbd{font-family:var(--mono);font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--text)}
+
+  @media (max-width:768px){
+    body{padding:14px}
+    .layout{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .domain-row{grid-template-columns:1fr 1fr;gap:8px}
+    .domain-row .weight-badge{text-align:left}
+    .rail{position:static}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>CompTIA Security+ <span style="color:var(--cyan)">SY0-701</span></h1>
+    <div class="sub">Local study dashboard · progress saved in your browser</div>
+  </div>
+  <div class="header-actions">
+    <span id="saveStatus" class="muted mono" style="font-size:12px">saved</span>
+    <button class="danger" id="resetBtn">Reset progress</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="main-col">
+
+    <!-- 1) DOMAIN READINESS -->
+    <section class="card">
+      <h2>Domain readiness tracker</h2>
+      <div class="readiness-top">
+        <div class="gauge">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="60" fill="none" stroke="#1e293b" stroke-width="12"/>
+            <circle id="gaugeArc" cx="70" cy="70" r="60" fill="none" stroke="var(--blue)" stroke-width="12"
+                    stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377"/>
+          </svg>
+          <div class="val"><span class="num" id="overallNum">0%</span><span class="lbl">overall readiness</span></div>
+        </div>
+        <div class="readiness-blurb">
+          <p>Weighted by official exam blueprint percentages. Set an honest confidence score (0–100) per domain — the gauge is the weighted sum.</p>
+          <p style="margin-top:10px">Status: <span id="readyPill" class="pill">—</span></p>
+        </div>
+      </div>
+      <div id="domainRows"></div>
+    </section>
+
+    <!-- 2) STUDY-TIME PLANNER -->
+    <section class="card">
+      <h2>Weighted study-time planner</h2>
+      <div class="field" style="max-width:260px">
+        <label for="totalHours">Total available study hours</label>
+        <input type="number" id="totalHours" min="0" step="1" value="60">
+      </div>
+      <div class="grid2">
+        <div>
+          <h3 style="margin-bottom:6px">Split by exam weight</h3>
+          <table class="plan" id="planWeight"></table>
+        </div>
+        <div>
+          <h3 style="margin-bottom:6px">Readiness-adjusted split</h3>
+          <table class="plan" id="planAdj"></table>
+        </div>
+      </div>
+      <div class="note">
+        Weak domains earn extra time: each domain's share is scaled by <span class="mono">weight × (1 + 0.2 × (1 − readiness/100))</span>,
+        so a fully shaky domain gets the full <span class="mono">~1.2×</span> multiplier and a domain you've mastered gets close to <span class="mono">1.0×</span>.
+        Shares are then renormalized to your total hours.
+      </div>
+    </section>
+
+    <!-- 3) COUNTDOWN -->
+    <section class="card">
+      <h2>Countdown to exam day</h2>
+      <div class="field" style="max-width:260px">
+        <label for="examDate">Exam date</label>
+        <input type="date" id="examDate">
+      </div>
+      <div class="countdown-out">
+        <div class="days-box"><div class="n" id="daysLeft">—</div><div class="l">days remaining</div></div>
+        <div class="pace" id="paceMsg">Pick an exam date to get a pacing suggestion.</div>
+      </div>
+    </section>
+
+    <!-- 4) OBJECTIVE CHECKLIST -->
+    <section class="card">
+      <h2>Objective checklist</h2>
+      <div class="ring-head">
+        <div class="ring">
+          <svg width="96" height="96" viewBox="0 0 96 96">
+            <circle cx="48" cy="48" r="40" fill="none" stroke="#1e293b" stroke-width="9"/>
+            <circle id="ringArc" cx="48" cy="48" r="40" fill="none" stroke="var(--green)" stroke-width="9"
+                    stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+          </svg>
+          <div class="val" id="ringPct">0%</div>
+        </div>
+        <div>
+          <h3>Objectives complete</h3>
+          <p class="muted" style="font-size:13px"><span id="doneCount">0</span> of <span id="totalCount">0</span> sub-objectives checked across all five domains.</p>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="expandAll">Expand all</button>
+            <button id="collapseAll">Collapse all</button>
+          </div>
+        </div>
+      </div>
+      <div id="checklist"></div>
+    </section>
+
+  </div>
+
+  <!-- 5) QUICK-REFERENCE RAIL -->
+  <aside>
+    <div class="rail">
+      <div class="card surface">
+        <h2 style="color:var(--green)">Exam-day tactics</h2>
+        <ul>
+          <li>Do <strong>PBQs first</strong>, then flag-skip-return on hard items — don't burn time early.</li>
+          <li>Watch qualifiers: <span class="tag">NOT</span> <span class="tag">EXCEPT</span> <span class="tag">LEAST</span> — they flip the question.</li>
+          <li>Pick the <strong>BEST</strong> answer, not just a correct-sounding one.</li>
+          <li>"First step?" usually = <strong>contain / verify / document</strong>.</li>
+          <li><strong>Never leave a question blank</strong> — no penalty for guessing.</li>
+        </ul>
+      </div>
+      <div class="card surface">
+        <h2 style="color:var(--red)">NOT tested on this exam</h2>
+        <ul class="nottested" style="list-style:none">
+          <li>Vendor-specific config syntax</li>
+          <li>Writing real, runnable code</li>
+          <li>Deep cryptographic math</li>
+          <li>Memorizing CVE numbers</li>
+          <li>Legal case law</li>
+        </ul>
+      </div>
+      <div class="card surface">
+        <h2 style="color:var(--cyan)">Quick formulas</h2>
+        <ul style="list-style:none;gap:10px">
+          <li style="display:block"><span class="mono" style="color:var(--text)">SLE = AV × EF</span><br><span class="muted" style="font-size:12px">single loss expectancy</span></li>
+          <li style="display:block"><span class="mono" style="color:var(--text)">ALE = SLE × ARO</span><br><span class="muted" style="font-size:12px">annualized loss expectancy</span></li>
+          <li style="display:block"><span class="muted" style="font-size:12px">Ex: AV $200k, EF 25% → SLE $50k. ARO 2 → ALE $100k.</span></li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const DOMAINS = [
+  {code:'1', name:'General Security Concepts', weight:12, color:'var(--blue)'},
+  {code:'2', name:'Threats, Vulnerabilities & Mitigations', weight:22, color:'var(--red)'},
+  {code:'3', name:'Security Architecture', weight:18, color:'var(--purple)'},
+  {code:'4', name:'Security Operations', weight:28, color:'var(--green)'},
+  {code:'5', name:'Security Program Management & Oversight', weight:20, color:'var(--amber)'},
+];
+
+/* Objective tree: domain -> objectives -> sub-groups -> items */
+const TREE = {
+ '1':[
+  {id:'1.1', title:'Security controls', groups:[
+    {t:'Categories', items:['Technical','Managerial','Operational','Physical']},
+    {t:'Control types', items:['Preventive','Deterrent','Detective','Corrective','Compensating','Directive']},
+  ]},
+  {id:'1.2', title:'Fundamental concepts', groups:[
+    {t:'Core', items:['CIA triad','Non-repudiation','AAA — authenticating people','AAA — authenticating systems','AAA — authorization models','Gap analysis']},
+    {t:'Zero Trust — Control Plane', items:['Adaptive identity','Threat scope reduction','Policy-driven access control','Policy Administrator','Policy Engine']},
+    {t:'Zero Trust — Data Plane', items:['Implicit trust zones','Subject/system','Policy Enforcement Point']},
+    {t:'Physical security', items:['Bollards','Access control vestibule','Fencing','Video surveillance','Security guard','Access badge','Lighting','Sensors — infrared','Sensors — pressure','Sensors — microwave','Sensors — ultrasonic']},
+    {t:'Deception & disruption', items:['Honeypot','Honeynet','Honeyfile','Honeytoken']},
+  ]},
+  {id:'1.3', title:'Change management', groups:[
+    {t:'Business processes', items:['Approval process','Ownership','Stakeholders','Impact analysis','Test results','Backout plan','Maintenance window','Standard operating procedure']},
+    {t:'Technical implications', items:['Allow/deny lists','Restricted activities','Downtime','Service & application restart','Legacy applications','Dependencies']},
+    {t:'Documentation & control', items:['Diagrams','Policies/procedures','Version control']},
+  ]},
+  {id:'1.4', title:'Cryptographic solutions', groups:[
+    {t:'PKI', items:['Public key','Private key','Key escrow']},
+    {t:'Encryption', items:['Full-disk','Partition','File','Volume','Database','Record','Transport/communication','Symmetric','Asymmetric','Key exchange','Algorithms','Key length']},
+    {t:'Tools', items:['TPM','HSM','Key management system','Secure enclave']},
+    {t:'Obfuscation', items:['Steganography','Tokenization','Data masking']},
+    {t:'Primitives', items:['Hashing','Salting','Digital signatures','Key stretching','Blockchain / open public ledger']},
+    {t:'Certificates', items:['Certificate authority','CRL','OCSP','Self-signed','Third-party','Root of trust','CSR generation','Wildcard']},
+  ]},
+ ],
+ '2':[
+  {id:'2.1', title:'Threat actors & motivations', groups:[
+    {t:'Actors', items:['Nation-state','Unskilled attacker','Hacktivist','Insider threat','Organized crime','Shadow IT']},
+    {t:'Attributes', items:['Internal/external','Resources/funding','Sophistication/capability']},
+    {t:'Motivations', items:['Data exfiltration','Espionage','Service disruption','Blackmail','Financial gain','Philosophical/political beliefs','Ethical','Revenge','Disruption/chaos','War']},
+  ]},
+  {id:'2.2', title:'Threat vectors & attack surfaces', groups:[
+    {t:'Vectors', items:['Message-based — email','Message-based — SMS','Message-based — IM','Image-based','File-based','Voice call','Removable device','Vulnerable software — client-based','Vulnerable software — agentless','Unsupported systems/applications','Unsecure networks — wireless','Unsecure networks — wired','Unsecure networks — Bluetooth','Open service ports','Default credentials','Supply chain — MSPs/vendors/suppliers']},
+    {t:'Human vectors / social engineering', items:['Phishing','Vishing','Smishing','Misinformation/disinformation','Impersonation','Business email compromise','Pretexting','Watering hole','Brand impersonation','Typosquatting']},
+  ]},
+  {id:'2.3', title:'Vulnerabilities', groups:[
+    {t:'Types', items:['Application — memory injection','Application — buffer overflow','Application — race condition/TOCTOU','Application — malicious update','Operating-system-based','Web — SQLi','Web — XSS','Hardware — firmware','Hardware — end-of-life','Hardware — legacy','Virtualization — VM escape','Virtualization — resource reuse','Cloud-specific','Supply chain — service/hardware/software','Cryptographic','Misconfiguration','Mobile — side loading','Mobile — jailbreaking','Zero-day']},
+  ]},
+  {id:'2.4', title:'Indicators of malicious activity', groups:[
+    {t:'Malware', items:['Ransomware','Trojan','Worm','Spyware','Bloatware','Virus','Keylogger','Logic bomb','Rootkit']},
+    {t:'Physical attacks', items:['Brute force','RFID cloning','Environmental']},
+    {t:'Network attacks', items:['DDoS — amplified','DDoS — reflected','DNS attacks','Wireless','On-path','Credential replay','Malicious code']},
+    {t:'Application attacks', items:['Injection','Buffer overflow','Replay','Privilege escalation','Forgery','Directory traversal']},
+    {t:'Cryptographic attacks', items:['Downgrade','Collision','Birthday']},
+    {t:'Password attacks', items:['Spraying','Brute force']},
+    {t:'Indicators', items:['Account lockout','Concurrent session usage','Blocked content','Impossible travel','Resource consumption','Resource inaccessibility','Out-of-cycle logging','Published/documented','Missing logs']},
+  ]},
+  {id:'2.5', title:'Mitigation techniques', groups:[
+    {t:'Techniques', items:['Segmentation','Access control — ACL','Access control — permissions','Application allow list','Isolation','Patching','Encryption','Monitoring','Least privilege','Configuration enforcement','Decommissioning']},
+    {t:'Hardening', items:['Encryption','Endpoint protection','Host-based firewall','HIPS','Disabling ports/protocols','Default password changes','Removal of unnecessary software']},
+  ]},
+ ],
+ '3':[
+  {id:'3.1', title:'Architecture models & implications', groups:[
+    {t:'Models', items:['Cloud — responsibility matrix','Cloud — hybrid considerations','Cloud — third-party vendors','Infrastructure as code (IaC)','Serverless','Microservices','Physical isolation/air-gap','Logical segmentation','Software-defined networking','On-premises','Centralized vs decentralized','Containerization','Virtualization','IoT','ICS/SCADA','RTOS','Embedded systems','High availability']},
+    {t:'Considerations', items:['Availability','Resilience','Cost','Responsiveness','Scalability','Ease of deployment','Risk transference','Ease of recovery','Patch availability','Inability to patch','Power','Compute']},
+  ]},
+  {id:'3.2', title:'Secure enterprise infrastructure', groups:[
+    {t:'Design', items:['Device placement','Security zones','Attack surface','Connectivity','Failure modes — fail-open','Failure modes — fail-closed','Active vs passive','Inline vs tap/monitor']},
+    {t:'Network appliances', items:['Jump server','Proxy server','IPS/IDS','Load balancer','Sensors']},
+    {t:'Port security', items:['802.1X','EAP']},
+    {t:'Firewall types', items:['WAF','UTM','NGFW','Layer 4 vs layer 7']},
+    {t:'Secure communication/access', items:['VPN','Remote access','Tunneling — TLS','Tunneling — IPSec','SD-WAN','SASE','Selecting effective controls']},
+  ]},
+  {id:'3.3', title:'Protecting data', groups:[
+    {t:'Data types', items:['Regulated','Trade secret','Intellectual property','Legal information','Financial information','Human-readable','Non-human-readable']},
+    {t:'Classifications', items:['Sensitive','Confidential','Public','Restricted','Private','Critical']},
+    {t:'States & context', items:['At rest','In transit','In use','Data sovereignty','Geolocation']},
+    {t:'Methods', items:['Geographic restrictions','Encryption','Hashing','Masking','Tokenization','Obfuscation','Segmentation','Permission restrictions']},
+  ]},
+  {id:'3.4', title:'Resilience & recovery', groups:[
+    {t:'High availability', items:['Load balancing vs clustering']},
+    {t:'Sites', items:['Hot','Cold','Warm','Geographic dispersion']},
+    {t:'Architecture', items:['Platform diversity','Multi-cloud systems','Continuity of operations','Capacity planning — people','Capacity planning — technology','Capacity planning — infrastructure']},
+    {t:'Testing', items:['Tabletop exercises','Fail over','Simulation','Parallel processing']},
+    {t:'Backups & power', items:['Onsite/offsite','Frequency','Encryption','Snapshots','Recovery','Replication','Journaling','Generators','UPS']},
+  ]},
+ ],
+ '4':[
+  {id:'4.1', title:'Secure computing resources', groups:[
+    {t:'Baselines & hardening targets', items:['Secure baselines — establish','Secure baselines — deploy','Secure baselines — maintain','Mobile devices','Workstations','Switches','Routers','Cloud infrastructure','Servers','ICS/SCADA','Embedded systems','RTOS','IoT devices']},
+    {t:'Wireless & mobile', items:['Site surveys','Heat maps','MDM','BYOD','COPE','CYOD','Cellular','Wi-Fi','Bluetooth','WPA3','AAA/RADIUS','Cryptographic protocols','Authentication protocols']},
+    {t:'Application security', items:['Input validation','Secure cookies','Static code analysis','Code signing','Sandboxing','Monitoring']},
+  ]},
+  {id:'4.2', title:'Asset management', groups:[
+    {t:'Lifecycle', items:['Acquisition/procurement','Assignment — ownership','Assignment — classification','Monitoring — inventory','Monitoring — enumeration','Disposal — sanitization','Disposal — destruction','Disposal — certification','Disposal — data retention']},
+  ]},
+  {id:'4.3', title:'Vulnerability management', groups:[
+    {t:'Identification', items:['Vulnerability scan','Static/dynamic analysis','Package monitoring','Threat feeds — OSINT','Threat feeds — proprietary/third-party','Threat feeds — info-sharing orgs','Threat feeds — dark web','Penetration testing','Responsible disclosure & bug bounty','System/process audit']},
+    {t:'Analysis', items:['False positive/negative','Prioritize','CVSS','CVE','Classification','Exposure factor','Environmental variables','Industry/organizational impact','Risk tolerance']},
+    {t:'Response & validation', items:['Patching','Insurance','Segmentation','Compensating controls','Exceptions/exemptions','Rescanning','Audit','Verification','Reporting']},
+  ]},
+  {id:'4.4', title:'Alerting & monitoring', groups:[
+    {t:'Resources & activities', items:['Monitor systems','Monitor applications','Monitor infrastructure','Log aggregation','Alerting','Scanning','Reporting','Archiving','Alert response/remediation/validation','Quarantine','Alert tuning']},
+    {t:'Tools', items:['SCAP','Benchmarks','Agents/agentless','SIEM','Antivirus','DLP','SNMP traps','NetFlow','Vulnerability scanners']},
+  ]},
+  {id:'4.5', title:'Modify enterprise capabilities', groups:[
+    {t:'Network controls', items:['Firewall rules','Firewall access lists','Firewall ports/protocols','Screened subnets','IDS/IPS — trends','IDS/IPS — signatures','DNS filtering','NAC']},
+    {t:'Web & content', items:['Web filter — agent-based','Web filter — centralized proxy','URL scanning','Content categorization','Block rules','Reputation']},
+    {t:'OS, email & data', items:['Group Policy','SELinux','Secure protocol implementation','DMARC','DKIM','SPF','Email gateway','File integrity monitoring','DLP','EDR/XDR','User behavior analytics']},
+  ]},
+  {id:'4.6', title:'Identity & access management', groups:[
+    {t:'Accounts & identity', items:['Provisioning/de-provisioning','Permission assignments & implications','Identity proofing','Federation','SSO — LDAP','SSO — OAuth','SSO — SAML','Interoperability','Attestation']},
+    {t:'Access control models', items:['MAC','DAC','RBAC','Rule-based','ABAC','Time-of-day restrictions','Least privilege']},
+    {t:'MFA & passwords', items:['Biometrics','Hard/soft tokens','Security keys','Something you know','Something you have','Something you are','Somewhere you are','Password length','Complexity','Reuse','Expiration','Age','Managers','Passwordless']},
+    {t:'PAM tools', items:['Just-in-time permissions','Password vaulting','Ephemeral credentials']},
+  ]},
+  {id:'4.7', title:'Automation & orchestration', groups:[
+    {t:'Use cases', items:['User provisioning','Resource provisioning','Guard rails','Security groups','Ticket creation','Escalation','Enabling/disabling services & access','Continuous integration & testing','Integrations & APIs']},
+    {t:'Benefits', items:['Efficiency/time saving','Enforcing baselines','Standard configurations','Scaling securely','Employee retention','Reaction time','Workforce multiplier']},
+    {t:'Considerations', items:['Complexity','Cost','Single point of failure','Technical debt','Ongoing supportability']},
+  ]},
+  {id:'4.8', title:'Incident response', groups:[
+    {t:'Process', items:['Preparation','Detection','Analysis','Containment','Eradication','Recovery','Lessons learned']},
+    {t:'Activities', items:['Training','Tabletop exercises','Simulations','Root cause analysis','Threat hunting']},
+    {t:'Digital forensics', items:['Legal hold','Chain of custody','Acquisition','Reporting','Preservation','E-discovery','ORDER OF VOLATILITY']},
+  ]},
+  {id:'4.9', title:'Investigation data sources', groups:[
+    {t:'Log data', items:['Firewall logs','Application logs','Endpoint logs','OS-specific security logs','IPS/IDS logs','Network logs','Metadata']},
+    {t:'Other sources', items:['Vulnerability scans','Automated reports','Dashboards','Packet captures']},
+  ]},
+ ],
+ '5':[
+  {id:'5.1', title:'Security governance', groups:[
+    {t:'Policies', items:['Acceptable use','Information security','Business continuity','Disaster recovery','Incident response','SDLC','Change management']},
+    {t:'Standards & procedures', items:['Password standard','Access control standard','Physical security standard','Encryption standard','Procedure — change management','Onboarding/offboarding','Playbooks','Guidelines']},
+    {t:'Structure & roles', items:['External considerations (regulatory/legal/industry/local-global)','Monitoring & revision','Boards','Committees','Government entities','Centralized/decentralized','Owners','Controllers','Processors','Custodians/stewards']},
+  ]},
+  {id:'5.2', title:'Risk management process', groups:[
+    {t:'Identify & assess', items:['Risk identification','Assessment — ad hoc','Assessment — recurring','Assessment — one-time','Assessment — continuous']},
+    {t:'Analysis', items:['Qualitative','Quantitative','SLE','ALE','ARO','Probability','Likelihood','Exposure factor','Impact']},
+    {t:'Register & appetite', items:['Risk register','Key risk indicators','Risk owners','Risk threshold','Risk tolerance','Appetite — expansionary','Appetite — conservative','Appetite — neutral']},
+    {t:'Strategies & BIA', items:['Transfer','Accept (exemption/exception)','Avoid','Mitigate','Risk reporting','RTO','RPO','MTTR','MTBF']},
+  ]},
+  {id:'5.3', title:'Third-party risk', groups:[
+    {t:'Assessment & selection', items:['Penetration testing','Right-to-audit clause','Evidence of internal audits','Independent assessments','Supply chain analysis','Due diligence','Conflict of interest']},
+    {t:'Agreement types', items:['SLA','MOA','MOU','MSA','Work order/SOW','NDA','BPA']},
+    {t:'Ongoing', items:['Vendor monitoring','Questionnaires','Rules of engagement']},
+  ]},
+  {id:'5.4', title:'Compliance', groups:[
+    {t:'Reporting & consequences', items:['Internal reporting','External reporting','Fines','Sanctions','Reputational damage','Loss of license','Contractual impacts']},
+    {t:'Monitoring & privacy', items:['Due diligence/care','Attestation & acknowledgement','Internal/external monitoring','Automation','Legal implications (local-global)','Data subject','Controller vs processor','Ownership','Data inventory & retention','Right to be forgotten']},
+  ]},
+  {id:'5.5', title:'Audits & assessments', groups:[
+    {t:'Internal & external', items:['Attestation','Compliance','Audit committee','Self-assessments','Regulatory examinations','External assessment','Independent third-party audit']},
+    {t:'Penetration testing', items:['Physical','Offensive','Defensive','Integrated','Known environment','Partially known environment','Unknown environment','Reconnaissance — passive','Reconnaissance — active']},
+  ]},
+  {id:'5.6', title:'Security awareness', groups:[
+    {t:'Phishing & anomalies', items:['Campaigns','Recognizing phishing','Responding to reported suspicious messages','Anomalous behavior — risky','Anomalous behavior — unexpected','Anomalous behavior — unintentional']},
+    {t:'Training & guidance', items:['Policy/handbooks','Situational awareness','Insider threat','Password management','Removable media & cables','Social engineering','Operational security','Hybrid/remote work']},
+    {t:'Program', items:['Reporting & monitoring — initial','Reporting & monitoring — recurring','Development','Execution']},
+  ]},
+ ],
+};
+
+/* ===================== STATE ===================== */
+const LS_KEY = 'secplus_sy0701_dashboard_v1';
+const DEFAULT_STATE = { scores:{}, checks:{}, totalHours:60, examDate:'', open:{} };
+DOMAINS.forEach(d=>DEFAULT_STATE.scores[d.code]=50);
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return structuredClone(DEFAULT_STATE);
+    const parsed = JSON.parse(raw);
+    return Object.assign(structuredClone(DEFAULT_STATE), parsed,
+      {scores:Object.assign(structuredClone(DEFAULT_STATE.scores), parsed.scores||{})});
+  }catch(e){ return structuredClone(DEFAULT_STATE); }
+}
+let saveTimer;
+function save(){
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  const el = document.getElementById('saveStatus');
+  el.textContent='saving…';
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{el.textContent='saved';},400);
+}
+
+/* ===================== ID HELPERS ===================== */
+function itemId(domCode, objId, gIdx, iIdx){ return `${objId}|${gIdx}|${iIdx}`; }
+function allItemIds(){
+  const ids=[];
+  for(const dc of Object.keys(TREE)){
+    TREE[dc].forEach(obj=>obj.groups.forEach((g,gi)=>g.items.forEach((it,ii)=>ids.push({dc,objId:obj.id,id:itemId(dc,obj.id,gi,ii)}))));
+  }
+  return ids;
+}
+const ALL_IDS = allItemIds();
+const TOTAL_ITEMS = ALL_IDS.length;
+
+/* ===================== READINESS ===================== */
+function renderDomainRows(){
+  const wrap=document.getElementById('domainRows');
+  wrap.innerHTML='';
+  DOMAINS.forEach(d=>{
+    const score = state.scores[d.code];
+    const row=document.createElement('div');
+    row.className='domain-row';
+    row.innerHTML=`
+      <div class="domain-name"><span class="code">D${d.code}</span>${d.name}</div>
+      <div class="weight-badge">${d.weight}%</div>
+      <div class="score-cell">
+        <input type="range" min="0" max="100" value="${score}" data-rng="${d.code}">
+        <div class="bar"><span data-bar="${d.code}" style="width:${score}%;background:${d.color}"></span></div>
+      </div>
+      <div class="score-num"><input type="number" min="0" max="100" value="${score}" data-num="${d.code}"></div>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('[data-rng]').forEach(r=>r.addEventListener('input',e=>setScore(e.target.dataset.rng, e.target.value)));
+  wrap.querySelectorAll('[data-num]').forEach(n=>n.addEventListener('input',e=>setScore(e.target.dataset.num, e.target.value)));
+}
+function setScore(code,val){
+  let v=Math.max(0,Math.min(100,Math.round(Number(val)||0)));
+  state.scores[code]=v;
+  const rng=document.querySelector(`[data-rng="${code}"]`); if(rng && rng.value!=String(v)) rng.value=v;
+  const num=document.querySelector(`[data-num="${code}"]`); if(num && num.value!=String(v)) num.value=v;
+  const bar=document.querySelector(`[data-bar="${code}"]`); if(bar) bar.style.width=v+'%';
+  save();
+  renderReadiness(); renderPlanner(); renderCountdown();
+}
+function overallReadiness(){
+  let sum=0;
+  DOMAINS.forEach(d=> sum += (state.scores[d.code]/100)*d.weight );
+  return sum; // weights total 100, so this is 0..100
+}
+function renderReadiness(){
+  const pct=overallReadiness();
+  document.getElementById('overallNum').textContent=Math.round(pct)+'%';
+  const C=2*Math.PI*60;
+  const arc=document.getElementById('gaugeArc');
+  arc.style.strokeDasharray=C.toFixed(0);
+  arc.style.strokeDashoffset=(C*(1-pct/100)).toFixed(1);
+  let color, label;
+  if(pct>=80){color='var(--green)';label='Exam-ready';}
+  else if(pct>=65){color='var(--cyan)';label='Nearly there';}
+  else if(pct>=45){color='var(--amber)';label='Keep grinding';}
+  else{color='var(--red)';label='Early days';}
+  arc.style.stroke=color;
+  const pill=document.getElementById('readyPill');
+  pill.textContent=label;
+  pill.style.background='rgba(148,163,184,.12)';
+  pill.style.color=color;
+}
+
+/* ===================== PLANNER ===================== */
+function renderPlanner(){
+  const total=Math.max(0,Number(state.totalHours)||0);
+  // weight-only split
+  const wTbl=document.getElementById('planWeight');
+  let whtml='<tr><th>Domain</th><th class="num">Weight</th><th class="num">Hours</th></tr>';
+  let wsum=0;
+  DOMAINS.forEach(d=>{
+    const h=total*(d.weight/100);
+    wsum+=h;
+    whtml+=`<tr><td><span class="mono" style="color:var(--cyan)">D${d.code}</span></td><td class="num">${d.weight}%</td><td class="num">${h.toFixed(1)}</td></tr>`;
+  });
+  whtml+=`<tr class="tot-row"><td>Total</td><td class="num">100%</td><td class="num">${wsum.toFixed(1)}</td></tr>`;
+  wTbl.innerHTML=whtml;
+
+  // readiness-adjusted: weight * (1 + 0.2*(1 - r/100)), renormalized
+  let factors=DOMAINS.map(d=>{
+    const r=state.scores[d.code]/100;
+    return {code:d.code, f:d.weight*(1+0.2*(1-r))};
+  });
+  const fsum=factors.reduce((a,b)=>a+b.f,0)||1;
+  const aTbl=document.getElementById('planAdj');
+  let ahtml='<tr><th>Domain</th><th class="num">Mult</th><th class="num">Hours</th></tr>';
+  let asum=0;
+  factors.forEach(fo=>{
+    const d=DOMAINS.find(x=>x.code===fo.code);
+    const mult=1+0.2*(1-state.scores[fo.code]/100);
+    const h=total*(fo.f/fsum);
+    asum+=h;
+    ahtml+=`<tr><td><span class="mono" style="color:var(--cyan)">D${fo.code}</span></td><td class="num">${mult.toFixed(2)}×</td><td class="num">${h.toFixed(1)}</td></tr>`;
+  });
+  ahtml+=`<tr class="tot-row"><td>Total</td><td class="num"></td><td class="num">${asum.toFixed(1)}</td></tr>`;
+  aTbl.innerHTML=ahtml;
+}
+
+/* ===================== COUNTDOWN ===================== */
+function renderCountdown(){
+  const di=document.getElementById('examDate');
+  if(state.examDate) di.value=state.examDate;
+  const daysEl=document.getElementById('daysLeft');
+  const paceEl=document.getElementById('paceMsg');
+  if(!state.examDate){ daysEl.textContent='—'; paceEl.textContent='Pick an exam date to get a pacing suggestion.'; return; }
+  const today=new Date(); today.setHours(0,0,0,0);
+  const exam=new Date(state.examDate+'T00:00:00');
+  const days=Math.ceil((exam-today)/86400000);
+  daysEl.textContent=days;
+  const total=Math.max(0,Number(state.totalHours)||0);
+  if(days<0){ paceEl.innerHTML='Exam date has passed. Update the date if you rescheduled.'; daysEl.style.color='var(--red)'; return; }
+  if(days===0){ paceEl.innerHTML='<strong>Exam is today.</strong> Light review only — trust your prep, rest, and arrive early.'; daysEl.style.color='var(--amber)'; return; }
+  daysEl.style.color='var(--text)';
+  const perDay=total/days;
+  const ready=Math.round(overallReadiness());
+  paceEl.innerHTML=`To cover <span class="mono">${total}</span> study hours in <span class="mono">${days}</span> day${days===1?'':'s'}, aim for about <strong class="mono">${perDay.toFixed(1)} hrs/day</strong>. Current readiness <span class="mono">${ready}%</span>.`;
+}
+
+/* ===================== CHECKLIST ===================== */
+function renderChecklist(){
+  const wrap=document.getElementById('checklist');
+  wrap.innerHTML='';
+  DOMAINS.forEach(d=>{
+    const dc=d.code;
+    const dHeader=document.createElement('div');
+    dHeader.innerHTML=`<div style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:${d.color};font-weight:600;margin:14px 0 8px">Domain ${dc} — ${d.name} <span class="muted" style="font-weight:400">(${d.weight}%)</span></div>`;
+    wrap.appendChild(dHeader);
+    TREE[dc].forEach(obj=>{
+      const group=document.createElement('div');
+      group.className='obj-group';
+      const openState = state.open[obj.id] ? 'open':'';
+      // build body
+      let body='';
+      obj.groups.forEach((g,gi)=>{
+        body+=`<div class="sub"><div class="sub-title">${g.t}</div>`;
+        g.items.forEach((it,ii)=>{
+          const id=itemId(dc,obj.id,gi,ii);
+          const done=!!state.checks[id];
+          body+=`<label class="check ${done?'done':''}"><input type="checkbox" data-chk="${id}" ${done?'checked':''}><span>${it}</span></label>`;
+        });
+        body+='</div>';
+      });
+      group.innerHTML=`
+        <div class="obj-head ${openState}" data-toggle="${obj.id}">
+          <span class="chev">▶</span>
+          <span class="dtitle"><span class="dcode">${obj.id}</span>${obj.title}</span>
+          <span class="mini-bar"><span data-mini="${obj.id}"></span></span>
+          <span class="dcount" data-count="${obj.id}"></span>
+        </div>
+        <div class="obj-body ${openState}" data-body="${obj.id}">${body}</div>`;
+      wrap.appendChild(group);
+    });
+  });
+  wrap.querySelectorAll('[data-toggle]').forEach(h=>h.addEventListener('click',()=>toggleObj(h.dataset.toggle)));
+  wrap.querySelectorAll('[data-chk]').forEach(c=>c.addEventListener('change',e=>{
+    state.checks[e.target.dataset.chk]=e.target.checked;
+    if(!e.target.checked) delete state.checks[e.target.dataset.chk];
+    e.target.closest('.check').classList.toggle('done',e.target.checked);
+    save(); updateObjStats(); renderRing();
+  }));
+  updateObjStats(); renderRing();
+}
+function toggleObj(objId){
+  state.open[objId]=!state.open[objId];
+  document.querySelector(`[data-toggle="${objId}"]`).classList.toggle('open',state.open[objId]);
+  document.querySelector(`[data-body="${objId}"]`).classList.toggle('open',state.open[objId]);
+  save();
+}
+function objCounts(objId){
+  let total=0, done=0;
+  for(const dc of Object.keys(TREE)){
+    const obj=TREE[dc].find(o=>o.id===objId); if(!obj) continue;
+    obj.groups.forEach((g,gi)=>g.items.forEach((it,ii)=>{
+      total++; if(state.checks[itemId(dc,objId,gi,ii)]) done++;
+    }));
+  }
+  return {total,done};
+}
+function updateObjStats(){
+  for(const dc of Object.keys(TREE)) TREE[dc].forEach(obj=>{
+    const {total,done}=objCounts(obj.id);
+    const cnt=document.querySelector(`[data-count="${obj.id}"]`);
+    const mini=document.querySelector(`[data-mini="${obj.id}"]`);
+    if(cnt) cnt.textContent=`${done}/${total}`;
+    if(mini) mini.style.width=(total? (done/total*100):0)+'%';
+  });
+}
+function renderRing(){
+  let done=0;
+  ALL_IDS.forEach(o=>{ if(state.checks[o.id]) done++; });
+  const pct = TOTAL_ITEMS? done/TOTAL_ITEMS*100 : 0;
+  document.getElementById('ringPct').textContent=Math.round(pct)+'%';
+  document.getElementById('doneCount').textContent=done;
+  document.getElementById('totalCount').textContent=TOTAL_ITEMS;
+  const C=2*Math.PI*40;
+  const arc=document.getElementById('ringArc');
+  arc.style.strokeDasharray=C.toFixed(0);
+  arc.style.strokeDashoffset=(C*(1-pct/100)).toFixed(1);
+}
+
+/* ===================== WIRING ===================== */
+document.getElementById('totalHours').addEventListener('input',e=>{
+  state.totalHours=Math.max(0,Number(e.target.value)||0);
+  save(); renderPlanner(); renderCountdown();
+});
+document.getElementById('examDate').addEventListener('change',e=>{
+  state.examDate=e.target.value; save(); renderCountdown();
+});
+document.getElementById('expandAll').addEventListener('click',()=>{
+  for(const dc of Object.keys(TREE)) TREE[dc].forEach(o=>state.open[o.id]=true);
+  save(); renderChecklist();
+});
+document.getElementById('collapseAll').addEventListener('click',()=>{
+  state.open={}; save(); renderChecklist();
+});
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(confirm('Reset ALL saved progress?\n\nThis clears your domain scores, planner hours, exam date, and every checked objective from this browser. This cannot be undone.')){
+    localStorage.removeItem(LS_KEY);
+    state=structuredClone(DEFAULT_STATE);
+    document.getElementById('totalHours').value=state.totalHours;
+    document.getElementById('examDate').value='';
+    renderAll();
+  }
+});
+
+function renderAll(){
+  document.getElementById('totalHours').value=state.totalHours;
+  renderDomainRows();
+  renderReadiness();
+  renderPlanner();
+  renderCountdown();
+  renderChecklist();
+}
+renderAll();
+</script>
+</body>
+</html>

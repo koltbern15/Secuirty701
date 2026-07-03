@@ -1,0 +1,14 @@
+# Obsidian workspace / editor config (kept local, not part of the course)
+.obsidian/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temp / backup files
+*.tmp
+*~
+*.bak

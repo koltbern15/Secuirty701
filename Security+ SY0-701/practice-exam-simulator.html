@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA Security+ (SY0-701) Practice Exam Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#0b1120; --bg1:#0f172a; --surface:#1e293b; --border:#334155;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --amber:#f59e0b;
+    --cyan:#06b6d4; --purple:#a855f7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg0); color:var(--text);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    font-size:15px; line-height:1.55; min-height:100vh;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  button{font-family:inherit; cursor:pointer;}
+  .btn{
+    background:var(--surface); color:var(--text); border:1px solid var(--border);
+    padding:10px 18px; border-radius:8px; font-size:14px; font-weight:500;
+    transition:.15s; }
+  .btn:hover{border-color:var(--blue);}
+  .btn-primary{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .btn-primary:hover{background:#2563eb;}
+  .btn-success{background:var(--green); border-color:var(--green); color:#04210f;}
+  .btn-success:hover{filter:brightness(1.08);}
+  .btn-danger{background:var(--red); border-color:var(--red); color:#fff;}
+  .btn-ghost{background:transparent;}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  /* ===== START ===== */
+  .wrap{max-width:860px; margin:0 auto; padding:40px 24px;}
+  .start-card{
+    background:var(--bg1); border:1px solid var(--border); border-radius:16px;
+    padding:40px; }
+  .badge{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:12px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--cyan);
+    border:1px solid var(--border); padding:4px 10px; border-radius:6px;
+    margin-bottom:18px; }
+  h1{font-size:30px; margin:0 0 8px; font-weight:700; letter-spacing:-.01em;}
+  .subline{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:13px; margin-bottom:24px;}
+  .stat-row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:28px;}
+  .stat-box{
+    flex:1; min-width:150px; background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; padding:16px; }
+  .stat-box .n{font-size:26px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+  .stat-box .l{color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.05em; margin-top:4px;}
+  .section-label{font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase;
+    letter-spacing:.08em; color:var(--muted); margin:24px 0 10px;}
+  .mode-toggle{display:flex; gap:12px; flex-wrap:wrap;}
+  .mode-opt{
+    flex:1; min-width:200px; background:var(--surface); border:2px solid var(--border);
+    border-radius:12px; padding:18px; transition:.15s; }
+  .mode-opt:hover{border-color:#475569;}
+  .mode-opt.sel{border-color:var(--blue); background:#172033;}
+  .mode-opt h3{margin:0 0 4px; font-size:16px;}
+  .mode-opt p{margin:0; color:var(--muted); font-size:13px;}
+  .mode-opt .tag{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--cyan);}
+  .domain-picker{margin-top:16px; display:none;}
+  .domain-picker.show{display:block;}
+  select{
+    width:100%; background:var(--surface); color:var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:11px 12px; font-family:inherit; font-size:14px; }
+  .begin-row{margin-top:32px;}
+  .begin-row .btn-primary{font-size:16px; padding:13px 34px;}
+
+  /* ===== EXAM ===== */
+  .topbar{
+    position:sticky; top:0; z-index:30; background:var(--bg1);
+    border-bottom:1px solid var(--border); padding:12px 20px;
+    display:flex; align-items:center; gap:18px; }
+  .topbar .title{font-weight:600; font-size:14px; white-space:nowrap;}
+  .topbar .spacer{flex:1;}
+  .timer{
+    font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:600;
+    padding:5px 14px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface); letter-spacing:.04em; }
+  .timer.warn{color:var(--amber); border-color:var(--amber);}
+  .timer.crit{color:var(--red); border-color:var(--red); animation:flash .9s steps(2,start) infinite;}
+  @keyframes flash{50%{opacity:.35;}}
+  .progress-mini{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted);}
+
+  .exam-body{display:flex; min-height:calc(100vh - 57px);}
+  .navigator{
+    width:260px; flex-shrink:0; background:var(--bg1); border-right:1px solid var(--border);
+    padding:18px; overflow-y:auto; }
+  .nav-title{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:.08em; color:var(--muted); margin-bottom:12px;}
+  .progress-bar-outer{height:7px; background:var(--surface); border-radius:4px; overflow:hidden; margin-bottom:6px;}
+  .progress-bar-inner{height:100%; background:var(--blue); width:0%; transition:width .2s;}
+  .progress-text{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:16px;}
+  .nav-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:7px;}
+  .nav-btn{
+    position:relative; aspect-ratio:1; border:1px solid var(--border); background:var(--surface);
+    color:var(--text); border-radius:6px; font-family:'IBM Plex Mono',monospace; font-size:12px;
+    display:flex; align-items:center; justify-content:center; padding:0; }
+  .nav-btn:hover{border-color:var(--blue);}
+  .nav-btn.answered{background:#14321f; border-color:var(--green); color:#86efac;}
+  .nav-btn.current{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .nav-btn .flag-dot{position:absolute; top:2px; right:2px; width:7px; height:7px; border-radius:50%; background:var(--amber);}
+  .nav-legend{margin-top:16px; font-size:12px; color:var(--muted); display:flex; flex-direction:column; gap:6px;}
+  .nav-legend span{display:flex; align-items:center; gap:8px;}
+  .lg-swatch{width:12px; height:12px; border-radius:3px; border:1px solid var(--border);}
+
+  .question-panel{flex:1; padding:34px 40px; max-width:880px;}
+  .q-meta{display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .domain-tag{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--purple); border:1px solid var(--border); padding:3px 9px; border-radius:5px;}
+  .q-counter{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted);}
+  .multi-instr{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--amber);
+    border:1px solid var(--amber); padding:3px 9px; border-radius:5px;}
+  .q-stem{font-size:17px; line-height:1.6; margin-bottom:22px; font-weight:500;}
+  .options{display:flex; flex-direction:column; gap:11px; margin-bottom:28px;}
+  .opt{
+    display:flex; gap:13px; align-items:flex-start; background:var(--surface);
+    border:1px solid var(--border); border-radius:10px; padding:14px 16px; transition:.12s; }
+  .opt:hover{border-color:#475569;}
+  .opt.checked{border-color:var(--blue); background:#172033;}
+  .opt input{margin-top:3px; width:17px; height:17px; accent-color:var(--blue); flex-shrink:0;}
+  .opt label{cursor:pointer; flex:1;}
+  .opt .opt-letter{font-family:'IBM Plex Mono',monospace; color:var(--muted); margin-right:6px;}
+
+  .q-actions{display:flex; align-items:center; gap:12px; flex-wrap:wrap; border-top:1px solid var(--border); padding-top:20px;}
+  .flag-toggle{display:flex; align-items:center; gap:8px; color:var(--muted); font-size:14px;}
+  .flag-toggle input{accent-color:var(--amber); width:16px; height:16px;}
+  .q-actions .spacer{flex:1;}
+
+  /* ===== REVIEW (pre-submit) ===== */
+  .rev-counts{display:flex; gap:14px; flex-wrap:wrap; margin:22px 0;}
+  .rev-count{flex:1; min-width:140px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px;}
+  .rev-count .n{font-size:26px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+  .rev-count .l{color:var(--muted); font-size:12px; text-transform:uppercase; margin-top:3px;}
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--border); font-size:14px;}
+  th{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+  tr.rev-row{cursor:pointer;}
+  tr.rev-row:hover td{background:var(--bg1);}
+  .pill{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 9px; border-radius:20px; display:inline-block;}
+  .pill-ans{background:#14321f; color:#86efac;}
+  .pill-unans{background:#3a1d1d; color:#fca5a5;}
+  .pill-flag{background:#3a2e12; color:#fcd34d;}
+
+  /* ===== MODAL ===== */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(2,6,23,.75); z-index:60;
+    display:none; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.show{display:flex;}
+  .modal{
+    background:var(--bg1); border:1px solid var(--border); border-radius:14px;
+    padding:28px; max-width:460px; width:100%; }
+  .modal h3{margin:0 0 12px; font-size:20px;}
+  .modal p{color:var(--muted); margin:0 0 22px;}
+  .modal .warn-line{color:var(--amber);}
+  .modal-actions{display:flex; gap:12px; justify-content:flex-end;}
+
+  /* ===== RESULTS ===== */
+  .score-hero{background:var(--bg1); border:1px solid var(--border); border-radius:16px; padding:34px; text-align:center; margin-bottom:24px;}
+  .score-num{font-family:'IBM Plex Mono',monospace; font-size:64px; font-weight:700; line-height:1;}
+  .score-num .of{font-size:26px; color:var(--muted);}
+  .verdict{font-size:24px; font-weight:700; margin:10px 0 4px; letter-spacing:.04em;}
+  .verdict.pass{color:var(--green);}
+  .verdict.fail{color:var(--red);}
+  .score-sub{color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:14px;}
+  .res-stats{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px;}
+  .res-stat{flex:1; min-width:130px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; text-align:center;}
+  .res-stat .n{font-size:24px; font-weight:700; font-family:'IBM Plex Mono',monospace;}
+  .res-stat .l{color:var(--muted); font-size:12px; text-transform:uppercase; margin-top:3px;}
+
+  .dom-break{margin-bottom:14px;}
+  .dom-row{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:10px;}
+  .dom-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; gap:12px;}
+  .dom-name{font-weight:600; font-size:14px;}
+  .dom-score{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--muted);}
+  .dom-bar-outer{height:9px; background:var(--bg0); border-radius:5px; overflow:hidden;}
+  .dom-bar-inner{height:100%; border-radius:5px; transition:width .4s;}
+
+  .filter-row{display:flex; gap:10px; margin:24px 0 14px; align-items:center; flex-wrap:wrap;}
+  .filter-row .section-label{margin:0;}
+  .fbtn{background:var(--surface); border:1px solid var(--border); color:var(--text); padding:6px 14px; border-radius:20px; font-size:13px;}
+  .fbtn.active{background:var(--blue); border-color:var(--blue); color:#fff;}
+
+  .qr-card{background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden;}
+  .qr-head{display:flex; gap:12px; align-items:flex-start; padding:14px 16px; cursor:pointer;}
+  .qr-head:hover{background:var(--bg1);}
+  .qr-icon{font-family:'IBM Plex Mono',monospace; font-weight:600; flex-shrink:0; width:22px;}
+  .qr-icon.correct{color:var(--green);}
+  .qr-icon.incorrect{color:var(--red);}
+  .qr-num{font-family:'IBM Plex Mono',monospace; color:var(--muted); font-size:13px; flex-shrink:0;}
+  .qr-stem-mini{flex:1; font-size:14px;}
+  .qr-chevron{color:var(--muted); transition:.2s;}
+  .qr-card.open .qr-chevron{transform:rotate(90deg);}
+  .qr-body{display:none; padding:0 16px 18px 16px; border-top:1px solid var(--border);}
+  .qr-card.open .qr-body{display:block;}
+  .qr-opt{padding:9px 12px; border-radius:8px; margin-top:8px; font-size:14px; border:1px solid transparent; display:flex; gap:10px;}
+  .qr-opt .mk{font-family:'IBM Plex Mono',monospace; flex-shrink:0;}
+  .qr-opt.correct{background:#0e2a18; border-color:var(--green);}
+  .qr-opt.your-wrong{background:#2c1414; border-color:var(--red);}
+  .qr-opt.neutral{background:var(--bg0);}
+  .qr-exp{margin-top:16px; padding:14px; background:var(--bg0); border-radius:8px; border-left:3px solid var(--cyan); font-size:14px;}
+  .qr-exp .ex-label{font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--cyan); margin-bottom:6px;}
+  .qr-yourans{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-top:14px;}
+
+  @media (max-width:768px){
+    .navigator{position:fixed; left:0; top:57px; bottom:0; z-index:25; width:78%; max-width:300px; transform:translateX(-100%); transition:transform .25s;}
+    .navigator.open{transform:translateX(0);}
+    .question-panel{padding:22px 18px;}
+    .nav-toggle{display:inline-flex !important;}
+    .wrap{padding:24px 14px;}
+    .start-card{padding:26px 20px;}
+    h1{font-size:24px;}
+  }
+  .nav-toggle{display:none; align-items:center; gap:6px;}
+</style>
+</head>
+<body>
+
+<!-- ================= START ================= -->
+<div id="screen-start" class="screen active">
+  <div class="wrap">
+    <div class="start-card">
+      <span class="badge">Practice Exam Simulator</span>
+      <h1>CompTIA Security+ (SY0-701)</h1>
+      <div class="subline">90 questions &middot; 90 minutes &middot; 750 to pass (scaled 100&ndash;900)</div>
+
+      <div class="stat-row">
+        <div class="stat-box"><div class="n" id="stat-total"></div><div class="l">Questions in Bank</div></div>
+        <div class="stat-box"><div class="n" id="stat-single"></div><div class="l">Single-Select</div></div>
+        <div class="stat-box"><div class="n" id="stat-multi"></div><div class="l">Multi-Select</div></div>
+      </div>
+
+      <div class="section-label">Select Mode</div>
+      <div class="mode-toggle">
+        <div class="mode-opt sel" id="mode-full" onclick="setMode('full')">
+          <h3>Full Exam</h3>
+          <p>90 sampled questions, weighted by domain. <span class="tag">90:00 timed</span></p>
+        </div>
+        <div class="mode-opt" id="mode-drill" onclick="setMode('drill')">
+          <h3>Domain Drill</h3>
+          <p>All questions from one domain. <span class="tag">untimed</span></p>
+        </div>
+      </div>
+
+      <div class="domain-picker" id="domain-picker">
+        <div class="section-label">Choose Domain</div>
+        <select id="domain-select"></select>
+      </div>
+
+      <div class="begin-row">
+        <button class="btn btn-primary" onclick="beginExam()">Begin &rarr;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EXAM ================= -->
+<div id="screen-exam" class="screen">
+  <div class="topbar">
+    <button class="btn btn-ghost nav-toggle" onclick="toggleNav()">&#9776; Nav</button>
+    <div class="title">Security+ SY0-701</div>
+    <div class="spacer"></div>
+    <div class="progress-mini" id="top-progress"></div>
+    <div class="timer mono" id="timer" style="display:none;">90:00</div>
+  </div>
+  <div class="exam-body">
+    <aside class="navigator" id="navigator">
+      <div class="nav-title">Navigator</div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="prog-inner"></div></div>
+      <div class="progress-text" id="prog-text">0 / 0 answered</div>
+      <div class="nav-grid" id="nav-grid"></div>
+      <div class="nav-legend">
+        <span><span class="lg-swatch" style="background:#3b82f6;border-color:#3b82f6;"></span> Current</span>
+        <span><span class="lg-swatch" style="background:#14321f;border-color:#22c55e;"></span> Answered</span>
+        <span><span class="lg-swatch" style="background:#1e293b;"></span> Unanswered</span>
+        <span><span class="lg-swatch" style="background:#f59e0b;border-color:#f59e0b;"></span> Flagged</span>
+      </div>
+    </aside>
+    <main class="question-panel" id="question-panel"></main>
+  </div>
+</div>
+
+<!-- ================= REVIEW (pre-submit) ================= -->
+<div id="screen-review" class="screen">
+  <div class="wrap" style="max-width:980px;">
+    <h1 style="font-size:26px;">Review Your Answers</h1>
+    <div class="subline">Click any row to jump back to that question.</div>
+    <div class="rev-counts">
+      <div class="rev-count"><div class="n" id="rev-answered" style="color:#22c55e;"></div><div class="l">Answered</div></div>
+      <div class="rev-count"><div class="n" id="rev-unanswered" style="color:#ef4444;"></div><div class="l">Unanswered</div></div>
+      <div class="rev-count"><div class="n" id="rev-flagged" style="color:#f59e0b;"></div><div class="l">Flagged</div></div>
+    </div>
+    <div style="display:flex; gap:12px; margin-bottom:18px;">
+      <button class="btn" onclick="backToExam()">&larr; Back to Exam</button>
+      <button class="btn btn-success" onclick="openSubmitModal()">Submit Exam</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>#</th><th>Domain</th><th>Status</th><th>Flag</th></tr></thead>
+        <tbody id="rev-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ================= RESULTS ================= -->
+<div id="screen-results" class="screen">
+  <div class="wrap" style="max-width:980px;">
+    <div class="score-hero">
+      <div class="score-num"><span id="res-scaled"></span><span class="of">/900</span></div>
+      <div class="verdict" id="res-verdict"></div>
+      <div class="score-sub" id="res-passline">Passing score: 750</div>
+    </div>
+    <div class="res-stats">
+      <div class="res-stat"><div class="n" id="res-correct"></div><div class="l">Correct</div></div>
+      <div class="res-stat"><div class="n" id="res-pct"></div><div class="l">Percentage</div></div>
+      <div class="res-stat"><div class="n" id="res-time"></div><div class="l">Time Elapsed</div></div>
+    </div>
+
+    <div class="section-label">Performance by Domain</div>
+    <div class="dom-break" id="dom-break"></div>
+
+    <div class="filter-row">
+      <div class="section-label">Question Review</div>
+      <div class="spacer" style="flex:1;"></div>
+      <button class="fbtn active" data-f="all" onclick="setFilter('all')">All</button>
+      <button class="fbtn" data-f="incorrect" onclick="setFilter('incorrect')">Incorrect</button>
+      <button class="fbtn" data-f="correct" onclick="setFilter('correct')">Correct</button>
+    </div>
+    <div id="qreview-list"></div>
+
+    <div style="margin:28px 0; text-align:center;">
+      <button class="btn btn-primary" onclick="retake()" style="font-size:16px; padding:13px 34px;">Retake Exam</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SUBMIT MODAL ================= -->
+<div class="modal-overlay" id="submit-modal">
+  <div class="modal">
+    <h3>Submit Exam?</h3>
+    <p id="modal-text">Once submitted you cannot change your answers.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeSubmitModal()">Go Back</button>
+      <button class="btn btn-success" onclick="confirmSubmit()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [{"id":1,"d":1,"type":"single","q":"A security analyst discovers that a recently deployed application allows users to retrieve account balances but offers no way to prove which user actually initiated each transaction. Management is concerned that a user could later deny having performed a transfer. Which security concept must be implemented to address this concern?","opts":["Non-repudiation","Confidentiality","Availability","Authorization"],"ans":[0],"exp":"Non-repudiation ensures a user cannot deny performing an action, typically achieved through digital signatures and detailed logging that tie an action to a specific identity. Confidentiality protects data from unauthorized disclosure and availability ensures access to resources, neither of which addresses denial of an action. Authorization controls what a user can access but does not produce proof binding the action to the user."},{"id":2,"d":1,"type":"single","q":"An organization must categorize a newly purchased video surveillance system within its control framework. The cameras are intended to discourage would-be intruders who see them and to capture footage for later review. According to control types, which BEST describes a visible camera placed at a building entrance specifically to discourage intruders?","opts":["Deterrent","Detective","Compensating","Corrective"],"ans":[0],"exp":"A deterrent control discourages a threat actor from acting; a visible camera that makes an intruder think twice is a classic example. A detective control identifies an incident after it occurs, which describes the recording/review function but not the discouraging intent emphasized here. Compensating controls substitute for a primary control, and corrective controls restore systems after an incident, neither of which fits the described purpose."},{"id":3,"d":1,"type":"single","q":"Your company wants to move toward a Zero Trust architecture. The security team is designing the component that makes the decision to grant or deny access requests based on policy. In the Zero Trust model, which plane contains the Policy Decision Point that evaluates and authorizes access requests?","opts":["Control plane","Data plane","Management plane","Subject plane"],"ans":[0],"exp":"In Zero Trust, the control plane houses the Policy Decision Point (made up of the Policy Engine and Policy Administrator), which evaluates requests against policy and decides whether to grant access. The data plane is where the Policy Enforcement Point actually allows or blocks the subject's connection to the resource. There is no standard 'management plane' or 'subject plane' in the Zero Trust adaptive identity model as the decision-making location."},{"id":4,"d":1,"type":"single","q":"During an audit, a security analyst is asked to compare the organization's current security posture against the requirements of the NIST Cybersecurity Framework to identify where the organization falls short. Which activity is the analyst performing?","opts":["Gap analysis","Penetration testing","Risk transference","Threat modeling"],"ans":[0],"exp":"A gap analysis compares the current state of security controls against a desired state or framework to identify deficiencies that need remediation. Penetration testing actively exploits vulnerabilities and does not measure posture against a framework baseline. Risk transference shifts risk to a third party (e.g., insurance), and threat modeling identifies potential threats to a system, neither of which is the comparison described."},{"id":5,"d":1,"type":"multi","q":"A security team is documenting the elements of the AAA framework for a new network access control system. Which of the following are part of the AAA framework? (Choose THREE)","opts":["Authentication","Authorization","Accounting","Availability","Assurance"],"ans":[0,1,2],"exp":"AAA stands for Authentication (verifying identity), Authorization (determining what an authenticated identity may do), and Accounting (tracking and logging what the identity does). Availability is part of the CIA triad, not AAA, and is a confusable distractor because both start with 'A'. Assurance is not a component of the AAA framework."},{"id":6,"d":1,"type":"single","q":"An organization is rolling out a change to a production firewall ruleset. The change management policy requires that the team document how to reverse the change if it causes an outage. Which element of the change management process does this requirement describe?","opts":["Backout plan","Maintenance window","Impact analysis","Standard operating procedure"],"ans":[0],"exp":"A backout plan (rollback plan) documents the steps to revert a change and return systems to their prior working state if the change fails. A maintenance window defines when the change occurs, and an impact analysis assesses what the change could affect beforehand. A standard operating procedure documents routine processes but is not specifically the reversal plan described."},{"id":7,"d":1,"type":"single","q":"A security analyst is reviewing how a certificate authority handles revoked certificates. The analyst wants clients to check a certificate's revocation status in real time by querying the CA for a single certificate rather than downloading a large list. Which mechanism should be used?","opts":["OCSP","CRL","CSR","PKCS#12"],"ans":[0],"exp":"The Online Certificate Status Protocol (OCSP) lets a client query the CA in real time about the status of a single specific certificate, avoiding the overhead of a full list. A Certificate Revocation List (CRL) is the large, periodically published list of revoked certificates that the analyst wants to avoid downloading. A CSR is a certificate signing request used to request a certificate, and PKCS#12 is a container format for bundling a certificate and private key."},{"id":8,"d":1,"type":"single","q":"A security analyst discovers a directory full of fake but realistic-looking customer records on a server that no legitimate process should ever access. The files are designed to alert the security team the moment anything reads them. Which deception technology is being used?","opts":["Honeyfile","Honeynet","DNS sinkhole","Honeytoken database"],"ans":[0],"exp":"A honeyfile is a decoy file placed where no legitimate user should access it; any access generates an alert indicating unauthorized activity. A honeynet is an entire decoy network of multiple systems, which is broader than the single directory of files described. A DNS sinkhole redirects malicious domain lookups, and a honeytoken is typically a single piece of bait data rather than the file-based trap described here, making honeyfile the most precise answer."},{"id":9,"d":1,"type":"single","q":"An organization needs to encrypt large volumes of data quickly for storage at rest and is choosing a cryptographic approach. Performance is the primary concern, and the same key can be used to encrypt and decrypt. Which type of encryption BEST fits this requirement?","opts":["Symmetric encryption","Asymmetric encryption","Hashing","Digital signatures"],"ans":[0],"exp":"Symmetric encryption uses a single shared key for both encryption and decryption and is significantly faster than asymmetric methods, making it ideal for bulk data at rest. Asymmetric encryption uses a public/private key pair and is much slower, typically reserved for key exchange and signatures. Hashing is one-way and cannot decrypt data, and digital signatures provide integrity and non-repudiation rather than confidentiality for bulk data."},{"id":10,"d":1,"type":"single","q":"A security analyst discovers that an attacker has gained physical access to a secured area by walking in closely behind an authorized employee who held the door open. Which physical security control is specifically designed to prevent this tactic?","opts":["Access control vestibule","Bollard","Pressure sensor","Faraday cage"],"ans":[0],"exp":"An access control vestibule (mantrap) is a two-door system that allows only one person through at a time, directly preventing tailgating by ensuring a second person cannot follow through on a single authentication. Bollards are barriers that stop vehicles, not people following on foot. A pressure sensor detects presence but does not physically prevent tailgating, and a Faraday cage blocks electromagnetic signals, which is unrelated to the entry tactic described."},{"id":11,"d":1,"type":"single","q":"During an incident, a security analyst confirms that a server's private key may have been exposed. The team needs to ensure that any communications captured by the attacker in the past cannot be decrypted even if the long-term private key is compromised. Which cryptographic property provides this protection?","opts":["Perfect forward secrecy","Key escrow","Certificate pinning","Salting"],"ans":[0],"exp":"Perfect forward secrecy generates unique ephemeral session keys for each session so that compromise of the long-term private key does not allow decryption of previously captured traffic. Key escrow stores keys with a third party, which actually increases exposure rather than protecting past sessions. Certificate pinning ties a client to a specific certificate to resist impersonation, and salting adds randomness to hashed passwords, neither of which protects past session traffic."},{"id":12,"d":1,"type":"single","q":"A security analyst is evaluating controls and needs to classify a written acceptable use policy that defines how employees may use company systems. By control category, which category does a written policy BEST represent?","opts":["Managerial","Technical","Physical","Operational"],"ans":[0],"exp":"Managerial (administrative) controls are policies, procedures, and governance documents that guide how security is managed, and an acceptable use policy is a classic example. Technical controls are implemented through technology such as firewalls and encryption. Physical controls protect tangible assets like doors and locks, and while operational controls involve day-to-day human processes, a foundational written policy that sets governance direction is best classified as managerial."},{"id":13,"d":1,"type":"single","q":"A security analyst discovers a suspicious certificate presented by a website. The certificate covers both www.example.com and shop.example.com using entries that list multiple specific hostnames. Which certificate field allows a single certificate to cover multiple distinct hostnames?","opts":["Subject Alternative Name","Common Name","Certificate serial number","Key usage"],"ans":[0],"exp":"The Subject Alternative Name (SAN) field lets a single certificate validly cover multiple specific hostnames or domains. The Common Name historically held a single primary hostname and is now deprecated for hostname validation in favor of SAN. The serial number uniquely identifies the certificate to the issuing CA, and the key usage field defines permitted cryptographic operations, neither of which lists covered hostnames."},{"id":14,"d":1,"type":"single","q":"An organization wants to verify the integrity of a downloaded software package to confirm it has not been altered in transit. The vendor publishes a value that the organization can recompute locally and compare. Which technique provides this integrity verification?","opts":["Hashing","Symmetric encryption","Steganography","Obfuscation"],"ans":[0],"exp":"Hashing produces a fixed-length digest that changes if even one bit of the input changes, so recomputing and comparing the hash verifies the file's integrity. Symmetric encryption provides confidentiality, not a verifiable integrity fingerprint that anyone can recompute. Steganography hides data within other data, and obfuscation makes data harder to interpret, neither of which verifies that a file is unaltered."},{"id":15,"d":1,"type":"single","q":"A security analyst is responding to a malware outbreak. Antivirus software automatically quarantines an infected file and restores a clean copy from backup to return the workstation to a working state. By control type, this automated restoration is BEST classified as which of the following?","opts":["Corrective","Preventive","Deterrent","Directive"],"ans":[0],"exp":"Corrective controls act after an incident to remediate damage and restore normal operations, which is exactly what restoring a clean file from backup accomplishes. Preventive controls stop incidents before they happen, which the automated cleanup did not do because the infection already occurred. Deterrent controls discourage attackers, and directive controls instruct people on required behavior, neither of which describes automated post-incident restoration."},{"id":16,"d":1,"type":"single","q":"A security analyst discovers that a phishing site is presenting a TLS certificate that browsers trust. Investigation shows the certificate was issued by a subordinate CA that chains up to a widely trusted root. Which component allows a browser to validate this certificate back to a trusted root?","opts":["Chain of trust","Key stretching","Certificate revocation list","Wildcard certificate"],"ans":[0],"exp":"The chain of trust links an end-entity certificate through any intermediate (subordinate) CAs up to a trusted root CA, allowing the browser to validate it. A certificate revocation list identifies revoked certificates but does not establish the validation path. Key stretching strengthens weak keys against brute force, and a wildcard certificate covers subdomains of one domain, neither of which describes the root-validation path."},{"id":17,"d":1,"type":"single","q":"An organization is preparing to deploy a major change to its core banking application. Which of the following is LEAST appropriate to include as part of a formal change management process?","opts":["Bypassing approval to deploy faster during business hours","Performing an impact analysis before implementation","Scheduling the change within an approved maintenance window","Documenting a backout plan in case the change fails"],"ans":[0],"exp":"Bypassing the approval process to deploy faster directly violates the discipline of change management, which exists to ensure changes are reviewed and authorized; it is the least appropriate practice. Impact analysis, a defined maintenance window, and a documented backout plan are all standard, appropriate components of a sound change management process. Skipping approvals introduces unmanaged risk that the entire process is designed to prevent."},{"id":18,"d":1,"type":"single","q":"During an incident, a security analyst suspects that an attacker is actively moving through the network. Before taking any other action, the analyst wants to gather intelligence on the attacker's techniques without exposing production systems. Which action should the analyst take FIRST to safely observe the attacker?","opts":["Deploy a honeypot to lure and observe the attacker","Immediately reimage all affected production servers","Disable all user accounts across the domain","Publish the attacker's IP address to a public blocklist"],"ans":[0],"exp":"A honeypot is a decoy system designed to attract and observe attackers, letting the analyst study techniques without risking production assets, which matches the stated goal of safe observation. Immediately reimaging servers would destroy evidence and forfeit the intelligence the analyst wants to gather. Disabling all accounts is a drastic containment step that does not provide observation, and publishing an IP to a blocklist neither protects production nor yields behavioral intelligence first."},{"id":19,"d":2,"type":"single","q":"A security analyst discovers that an attacker compromised the firm's network by exploiting a publicly disclosed vulnerability in an open-source library that the company's developers had pulled into their product without review. Which threat vector best describes this attack?","opts":["Supply chain attack","Watering hole attack","Brand impersonation","Typosquatting"],"ans":[0],"exp":"A supply chain attack occurs when a trusted third-party component (here, an open-source library) is the avenue of compromise, since the organization inherits the dependency's vulnerabilities. A watering hole attack targets a website the victim group frequently visits, not a code dependency. Brand impersonation and typosquatting are social-engineering/phishing techniques, not exploitation of pulled-in code."},{"id":20,"d":2,"type":"single","q":"During an incident, responders find that a former employee who was recently passed over for promotion used still-active credentials to copy a customer database to a personal cloud account. Which combination of threat actor and motivation is most accurate?","opts":["Insider threat motivated by revenge","Nation-state actor motivated by espionage","Hacktivist motivated by philosophical belief","Organized crime motivated by financial gain"],"ans":[0],"exp":"A current or former employee acting against the organization is an insider threat, and a passed-over employee exfiltrating data fits the revenge motivation. Nation-state actors pursue espionage on behalf of governments and have far greater resources. Hacktivists act on ideology, and organized crime is profit-driven; neither matches a disgruntled ex-employee using legitimate credentials."},{"id":21,"d":2,"type":"single","q":"Your company wants to reduce the risk that attackers can exploit a vulnerability before a vendor patch exists. Which type of vulnerability is, by definition, unpatched at the moment it is first exploited?","opts":["Zero-day vulnerability","Misconfiguration","End-of-life vulnerability","Default credential"],"ans":[0],"exp":"A zero-day is a flaw unknown to the vendor (or with no available fix) at the time it is first exploited, meaning defenders have had zero days to patch it. A misconfiguration results from improper settings and is correctable immediately. End-of-life refers to unsupported software, and default credentials are a known, fixable weakness, not an unknown flaw."},{"id":22,"d":2,"type":"single","q":"A security analyst reviews web server logs and finds requests containing strings like ' OR '1'='1 in the username field. Which attack is being attempted?","opts":["SQL injection","Cross-site scripting","Directory traversal","Cross-site request forgery"],"ans":[0],"exp":"The ' OR '1'='1 payload manipulates a backend SQL query to always evaluate true, the classic signature of SQL injection. Cross-site scripting injects client-side scripts (typically <script> tags), directory traversal uses sequences like ../ to escape directories, and CSRF forces a victim's browser to submit unwanted requests, none of which match the SQL boolean payload shown."},{"id":23,"d":2,"type":"multi","q":"An organization is hardening its endpoints against malware. Which of the following are forms of malware that conceal their presence or require user action to spread? (Choose TWO)","opts":["Rootkit","Trojan","Buffer overflow","Race condition"],"ans":[0,1],"exp":"A rootkit conceals its presence by operating at a privileged level and hiding files/processes, and a Trojan masquerades as legitimate software so a user installs it. Buffer overflow and race condition are software vulnerability classes (exploitation techniques), not malware types, so they do not belong in the malware category."},{"id":24,"d":2,"type":"single","q":"A security analyst notices that a workstation is making frequent outbound connections to a single external IP on a regular interval, even when no user is logged in. Which indicator of malicious activity does this most likely represent?","opts":["Command-and-control beaconing","A brute-force password attack","DNS amplification","ARP poisoning"],"ans":[0],"exp":"Regular, periodic outbound connections to one external host with no user activity are classic command-and-control (C2) beaconing, where malware checks in with its operator. A brute-force attack involves repeated authentication attempts inbound to a service, DNS amplification is a reflection DDoS technique, and ARP poisoning is a local Layer 2 man-in-the-middle attack, none of which produce timed beacon-out behavior."},{"id":25,"d":2,"type":"single","q":"During an incident, a security analyst confirms that ransomware is actively encrypting files on multiple servers across the network. What should the analyst do FIRST?","opts":["Isolate the affected systems from the network","Restore the encrypted files from backup","Pay the ransom to obtain the decryption key","Run a full antivirus scan on every server"],"ans":[0],"exp":"Containment comes first; isolating affected systems from the network stops the ransomware from spreading and encrypting additional hosts. Restoring from backup is part of recovery and is pointless while the infection is still active and spreading. Paying the ransom is discouraged and does not stop spread, and running scans before containment wastes time while encryption continues."},{"id":26,"d":2,"type":"single","q":"A penetration tester sends emails appearing to come from the CEO to the finance department, urgently requesting a wire transfer. The emails target only senior finance staff. Which social engineering technique is this?","opts":["Whaling combined with business email compromise","Smishing","Pretexting via vishing","Shoulder surfing"],"ans":[0],"exp":"Targeting high-value individuals (senior finance staff) while impersonating an executive to trigger a fraudulent wire transfer is whaling combined with business email compromise (BEC). Smishing uses SMS text messages, vishing uses voice calls, and shoulder surfing is observing someone's screen or keypad in person; none involves a spoofed executive email to finance leadership."},{"id":27,"d":2,"type":"single","q":"A security analyst discovers that several IoT cameras on the corporate network still use the manufacturer's factory username and password. Which vulnerability category does this represent, and what is the best mitigation?","opts":["Default credentials; change them and enforce strong unique passwords","Improper input handling; deploy a web application firewall","Memory injection; enable address space layout randomization","Side-channel leakage; add electromagnetic shielding"],"ans":[0],"exp":"Factory-set usernames and passwords are default credentials, a misconfiguration that attackers routinely exploit because they are publicly documented; the fix is to change them to strong, unique credentials. Improper input handling, memory injection, and side-channel leakage are unrelated vulnerability classes whose listed mitigations (WAF, ASLR, shielding) do nothing to address shipped-default logins."},{"id":28,"d":2,"type":"multi","q":"An organization must harden a fleet of company laptops before deployment. Which of the following are valid hardening techniques? (Choose THREE)","opts":["Disabling unused ports and services","Applying a secure baseline configuration","Installing host-based endpoint protection","Granting all users local administrator rights","Disabling automatic security updates"],"ans":[0,1,2],"exp":"Disabling unused ports/services reduces the attack surface, applying a secure baseline enforces a known-good configuration, and host-based endpoint protection adds detection and prevention; all are core hardening practices. Granting universal local admin rights violates least privilege and increases risk, and disabling automatic updates leaves systems exposed to known vulnerabilities, so both are the opposite of hardening."},{"id":29,"d":2,"type":"single","q":"A security analyst observes a high volume of authentication failures for many different usernames, each tried with the single password 'Winter2025!'. Which password attack is occurring?","opts":["Password spraying","Dictionary attack against one account","Pass-the-hash","Rainbow table attack"],"ans":[0],"exp":"Trying one common password across many accounts to avoid lockout thresholds is password spraying. A dictionary attack hammers a single account with many passwords (the inverse pattern), pass-the-hash reuses captured hashes rather than guessing plaintext, and a rainbow table is a precomputed lookup used offline against stolen hashes, not against live login attempts."},{"id":30,"d":2,"type":"single","q":"Your company wants to defend against attacks that exploit the trust between a user's browser and a website by forcing the authenticated browser to submit unwanted state-changing requests. Which mitigation directly addresses this?","opts":["Anti-CSRF tokens tied to the user session","Output encoding of all rendered data","Parameterized database queries","Disabling directory listing on the web server"],"ans":[0],"exp":"Forcing an authenticated browser to submit unwanted requests describes cross-site request forgery (CSRF), and unpredictable per-session anti-CSRF tokens prevent forged requests from being accepted. Output encoding mitigates XSS, parameterized queries mitigate SQL injection, and disabling directory listing addresses information disclosure; none defeats CSRF specifically."},{"id":31,"d":2,"type":"single","q":"A security analyst discovers that an attacker placed malicious JavaScript into a comment field that later executes in the browsers of other users who view the page. Which attack and variant is this?","opts":["Stored cross-site scripting","Reflected cross-site scripting","DOM-based open redirect","Server-side request forgery"],"ans":[0],"exp":"Script that is saved on the server (in a comment) and runs for every later visitor is stored (persistent) XSS. Reflected XSS bounces the payload back immediately from a single crafted request rather than persisting it, a DOM-based open redirect manipulates client-side navigation, and SSRF makes the server issue requests; only stored XSS matches a saved payload affecting many users."},{"id":32,"d":2,"type":"single","q":"An organization runs many virtual machines on a single hypervisor. Which virtualization-specific vulnerability would allow code running in one guest VM to access the host or other guests?","opts":["VM escape","VM sprawl","Resource exhaustion","Snapshot rollback"],"ans":[0],"exp":"VM escape is the exploitation of a hypervisor flaw that lets code break out of a guest to reach the host or sibling VMs, breaking isolation. VM sprawl is the unmanaged proliferation of VMs, resource exhaustion is a denial-of-service condition, and snapshot rollback can reintroduce old vulnerabilities but does not by itself cross the isolation boundary."},{"id":33,"d":2,"type":"single","q":"During an incident, a security analyst finds that an attacker captured an authenticated session token from network traffic and reused it to access an application without knowing the password. Which attack occurred?","opts":["Session hijacking via replay","Privilege escalation via SUID abuse","Birthday attack on the hash","On-path certificate downgrade"],"ans":[0],"exp":"Capturing and reusing a valid session token to impersonate the user without credentials is session hijacking accomplished through a replay attack. Privilege escalation via SUID abuse involves local binaries, a birthday attack targets hash collisions, and a certificate downgrade weakens TLS negotiation; none describes reusing a stolen session token over the network."},{"id":34,"d":2,"type":"single","q":"A security analyst is evaluating threat actors and must identify the group typically characterized by the highest level of resources, sophistication, and long-term persistence, often pursuing espionage. Which actor is it?","opts":["Nation-state (advanced persistent threat)","Unskilled attacker (script kiddie)","Shadow IT","Hacktivist"],"ans":[0],"exp":"Nation-state actors, often labeled advanced persistent threats, have government-level funding, advanced capabilities, and the patience for long campaigns, frequently for espionage. Unskilled attackers rely on prebuilt tools with little skill, shadow IT refers to unsanctioned internal technology rather than an attacker, and hacktivists are ideologically driven but generally far less resourced than nation-states."},{"id":35,"d":2,"type":"single","q":"A security analyst discovers that confidential data was leaked because employees were using an unsanctioned file-sharing app that IT never approved or secured. Which of the following BEST describes the root issue?","opts":["Shadow IT","A logic bomb","A supply chain compromise","A watering hole attack"],"ans":[0],"exp":"Employees independently adopting an unapproved, unmanaged application is shadow IT, which introduces unsecured data flows outside IT's control. A logic bomb is malicious code triggered by a condition, a supply chain compromise involves a tainted vendor component, and a watering hole attack compromises a frequented website; none describes self-provisioned unsanctioned software."},{"id":36,"d":2,"type":"single","q":"Your company wants to mitigate the risk of attackers exploiting known flaws in software that the vendor no longer supports with security updates. Which condition describes this risk, and what is the best mitigation?","opts":["End-of-life/legacy software; replace it or apply compensating isolation controls","Zero-day exposure; deploy a next-generation firewall","Improper key management; rotate certificates more often","TOCTOU race condition; add file locking"],"ans":[0],"exp":"Software the vendor no longer patches is end-of-life or legacy, and the right response is to replace it or, when that is not feasible, isolate and apply compensating controls. Zero-day refers to unknown flaws, improper key management concerns cryptographic secrets, and a TOCTOU race condition is a timing bug; none matches unsupported software with no further patches."},{"id":37,"d":2,"type":"single","q":"A security analyst reviewing application logs sees the same source IP attempting thousands of passwords against one administrator account in rapid succession. Which control would MOST directly limit this attack?","opts":["Account lockout after a threshold of failed attempts","Full-disk encryption on the server","TLS 1.3 for all sessions","DNSSEC on the authoritative zone"],"ans":[0],"exp":"Thousands of password attempts against a single account is an online brute-force/dictionary attack, and account lockout thresholds directly stop it by disabling the account after repeated failures. Full-disk encryption protects data at rest, TLS protects data in transit, and DNSSEC authenticates DNS responses; none of those limits repeated login guessing."},{"id":38,"d":2,"type":"single","q":"During an incident, a security analyst correlates that a malware sample only began deleting files after the system clock reached a specific future date. Which malware behavior is this?","opts":["Logic bomb","Worm","Keylogger","Spyware"],"ans":[0],"exp":"Malicious code that lies dormant until a condition (such as a specific date) is met is a logic bomb. A worm self-propagates across networks, a keylogger records keystrokes, and spyware covertly gathers information; none of those is defined by a conditional time-based trigger that activates a destructive payload."},{"id":39,"d":2,"type":"single","q":"A security analyst discovers that an attacker registered a domain nearly identical to the company's, differing by one transposed letter, to capture mistyped traffic and harvest credentials. Which technique is this?","opts":["Typosquatting","Pharming via DNS poisoning","Pretexting","Tailgating"],"ans":[0],"exp":"Registering look-alike domains based on common typos to intercept mistyped traffic is typosquatting (URL hijacking). Pharming redirects correctly typed domains by poisoning DNS or hosts files rather than relying on user typos, pretexting is a social-engineering backstory, and tailgating is unauthorized physical entry; none relies on a one-character domain misspelling."},{"id":40,"d":2,"type":"single","q":"A security analyst must choose the FIRST action upon discovering that a critical server is running with an unnecessary administrative service exposed to the internet that is not required for its function. What should be done FIRST?","opts":["Disable or remove the unnecessary exposed service","Schedule a penetration test for next quarter","Document the finding in the risk register only","Increase log retention on the server"],"ans":[0],"exp":"Reducing the attack surface by disabling or removing the unnecessary internet-exposed service immediately closes the exposure, which is the priority. Scheduling a future pentest, merely documenting the risk, or increasing log retention may be worthwhile but none of them eliminates the active exposure now, which is the first concern."},{"id":41,"d":2,"type":"multi","q":"A security analyst is documenting indicators of compromise from an intrusion. Which of the following are legitimate indicators of malicious activity? (Choose TWO)","opts":["Unusual outbound traffic to a known malicious domain","Account lockouts and impossible-travel logins","A scheduled, approved nightly database backup","A user updating their password during a routine reset"],"ans":[0,1],"exp":"Outbound connections to a known-bad domain and impossible-travel/anomalous account behavior are recognized indicators of compromise that warrant investigation. An approved scheduled backup and a routine user-initiated password reset are expected, benign activities and are not indicators of malicious activity."},{"id":42,"d":2,"type":"single","q":"Your company wants to prevent attackers from exploiting buffer overflow vulnerabilities by making it harder to predict where code and data reside in memory. Which mitigation provides this protection?","opts":["Address space layout randomization (ASLR)","Input length validation only","Stronger password hashing","Network segmentation"],"ans":[0],"exp":"ASLR randomizes the memory locations of process components, making it far harder for an attacker to reliably target overflow exploits. Input validation helps prevent overflows from occurring but is not the memory-randomization control described, while password hashing and network segmentation address authentication and lateral movement, not in-memory exploit reliability."},{"id":43,"d":2,"type":"single","q":"A security analyst discovers that a malicious actor intercepted communication between a client and server, secretly relaying and altering messages while both parties believed they were talking directly. Which attack is this?","opts":["On-path (man-in-the-middle) attack","Amplified reflection attack","Credential stuffing","SQL injection"],"ans":[0],"exp":"Secretly positioning between two parties to relay and modify their traffic is an on-path (man-in-the-middle) attack. Amplified reflection is a DDoS technique, credential stuffing replays breached credentials against many sites, and SQL injection targets database queries; none involves intercepting and altering a live conversation between two endpoints."},{"id":44,"d":2,"type":"single","q":"A security analyst reviewing cloud storage finds that a bucket holding customer records is configured for public read access. Which vulnerability type is this, and what is the immediate mitigation?","opts":["Cloud misconfiguration; restrict the bucket policy to least privilege","Cryptographic weakness; upgrade the cipher suite","Firmware vulnerability; flash a signed image","Supply chain flaw; audit the vendor SBOM"],"ans":[0],"exp":"A publicly readable bucket of sensitive data is a classic cloud misconfiguration, and the fix is to tighten the bucket policy/permissions to least privilege so only authorized identities can read it. Cryptographic, firmware, and supply chain issues are different vulnerability classes whose mitigations do nothing to fix an over-permissive storage access policy."},{"id":45,"d":2,"type":"single","q":"During an incident, a security analyst finds a malware sample that spread automatically from host to host across the network without any user interaction or host file to attach to. Which malware type best fits?","opts":["Worm","Trojan","Potentially unwanted program (PUP)","Macro virus"],"ans":[0],"exp":"Self-propagating malware that moves host to host without user action and without needing a host file is a worm. A Trojan requires the user to run disguised software, a PUP is bundled unwanted software, and a macro virus depends on a user opening an infected document; none self-replicates across a network unaided like a worm."},{"id":46,"d":2,"type":"single","q":"A security analyst must identify which of the following is LEAST likely to be an indicator of a compromised host. Which option is it?","opts":["A successful login during normal business hours from the user's usual workstation","New unrecognized scheduled tasks created overnight","Antivirus suddenly disabled without administrator action","Outbound connections to a newly registered foreign IP at 3 a.m."],"ans":[0],"exp":"A normal-hours login from the user's typical device matches expected behavior and is the least suspicious. Unexplained new scheduled tasks (persistence), antivirus being disabled without authorization (defense evasion), and odd-hours connections to a newly registered foreign IP (possible C2/exfiltration) are all recognized indicators of compromise."},{"id":47,"d":2,"type":"single","q":"Your company wants to mitigate cryptographic vulnerabilities. A security analyst finds passwords stored using unsalted MD5. Which is the BEST remediation?","opts":["Rehash passwords with a salted, computationally hard algorithm like bcrypt","Encrypt the MD5 hashes with AES at rest","Switch from MD5 to SHA-1 without salting","Truncate the hashes to shorten exposure"],"ans":[0],"exp":"Unsalted MD5 is fast and collision-prone, making it vulnerable to rainbow tables and rapid cracking; rehashing with a salted, deliberately slow algorithm such as bcrypt (or Argon2/scrypt) is the correct remediation. Encrypting the existing weak hashes does not fix the underlying weakness, SHA-1 is also broken and still unsalted, and truncating hashes weakens them further."},{"id":48,"d":2,"type":"single","q":"A security analyst discovers attackers used credentials leaked from an unrelated breach to log into the company's portal, succeeding for users who reused the same password elsewhere. Which attack is this, and which control best mitigates it?","opts":["Credential stuffing; enforce multifactor authentication","Privilege escalation; apply least privilege","Directory traversal; sanitize file paths","Buffer overflow; enable stack canaries"],"ans":[0],"exp":"Replaying username/password pairs stolen from another breach to exploit password reuse is credential stuffing, and multifactor authentication blocks logins even when the password is correct. Privilege escalation, directory traversal, and buffer overflow are unrelated attack classes whose listed mitigations do nothing to stop reused-credential logins at the authentication step."},{"id":49,"d":2,"type":"single","q":"A security analyst discovers that a popular website frequently visited by the company's engineers was compromised to deliver malware specifically aimed at that engineering group. Which attack is this?","opts":["Watering hole attack","Whaling attack","Smishing campaign","Evil twin attack"],"ans":[0],"exp":"Compromising a site that a specific target group habitually visits in order to infect that group is a watering hole attack. Whaling targets executives via spear-phishing email, smishing uses malicious SMS, and an evil twin is a rogue wireless access point; none describes poisoning a trusted website to reach a particular audience."},{"id":50,"d":2,"type":"single","q":"During an incident, a security analyst determines that an attacker exploited a flaw where the application checked a file's permissions and then used the file, but the file was swapped in the gap between the check and the use. Which vulnerability class is this?","opts":["Time-of-check to time-of-use (TOCTOU) race condition","Improper error handling","Hard-coded credential","Insecure deserialization"],"ans":[0],"exp":"A flaw exploited in the window between validating a resource and using it is a time-of-check to time-of-use (TOCTOU) race condition. Improper error handling leaks information through messages, hard-coded credentials are embedded secrets, and insecure deserialization abuses object parsing; none is defined by the check-then-use timing gap exploited here."},{"id":51,"d":2,"type":"single","q":"A security analyst is hardening a mobile device fleet and must address the risk introduced when users bypass the manufacturer's built-in OS restrictions to install unauthorized software. Which term and mitigation apply?","opts":["Jailbreaking/rooting; enforce detection and compliance via MDM","Sideloading patches; require signed firmware","Bluejacking; disable discoverable mode","Tethering; block hotspot creation"],"ans":[0],"exp":"Removing built-in OS restrictions to install unauthorized software is jailbreaking (iOS) or rooting (Android), which undermines the device security model; mobile device management can detect and block non-compliant devices. Bluejacking sends unsolicited Bluetooth messages and tethering shares a connection; neither describes bypassing OS restrictions, and the firmware-signing option mislabels the behavior."},{"id":52,"d":3,"type":"single","q":"An organization is designing a new application platform and wants to eliminate the overhead of patching guest operating systems while still running discrete, event-driven workloads that scale automatically. Which architecture model BEST fits this requirement?","opts":["Serverless (Function as a Service)","Type 1 hypervisor virtualization","On-premises bare-metal deployment","Containerization with a shared kernel"],"ans":[0],"exp":"Serverless/FaaS lets the cloud provider manage the underlying OS and infrastructure while code runs in response to events and scales automatically, removing guest OS patching from the customer. Type 1 virtualization and bare-metal both require the customer to patch operating systems. Containers reduce OS overhead but the customer still manages and patches the host OS and base images."},{"id":53,"d":3,"type":"single","q":"A security analyst discovers that an externally facing web server providing customer-facing services is sitting on the same internal LAN segment as the domain controllers and file servers. Which infrastructure change should be made to reduce risk?","opts":["Place the web server in a screened subnet (DMZ) isolated from the internal network","Move the domain controllers to the same subnet as the web server","Assign the web server a static internal IP address only","Enable full-disk encryption on the web server"],"ans":[0],"exp":"A screened subnet (DMZ) isolates internet-facing systems so that a compromise of the web server does not provide direct lateral access to internal assets like domain controllers. Moving DCs next to the web server increases exposure rather than reducing it. A static IP and full-disk encryption are useful but neither provides the network segmentation that addresses the placement problem."},{"id":54,"d":3,"type":"single","q":"An organization must ensure that if its inline next-generation firewall loses power or crashes, network traffic continues to flow even though it is temporarily unfiltered. Which configuration is being described?","opts":["Fail-open","Fail-closed","Fail-safe","Failover clustering"],"ans":[0],"exp":"Fail-open allows traffic to continue passing when a security device fails, prioritizing availability over security. Fail-closed (fail-secure) blocks all traffic on failure, prioritizing security over availability. Fail-safe is a general term and failover clustering refers to redundant nodes taking over, not the open/closed behavior of a single failed device."},{"id":55,"d":3,"type":"multi","q":"A company is implementing data-at-rest protection for laptops and a backend database that stores customer records. Which methods specifically protect data while it is stored, rather than while it is moving across a network? (Choose TWO)","opts":["Full-disk encryption (FDE)","Transparent data encryption (TDE) on the database","TLS for client-to-server connections","IPSec tunnel between data centers"],"ans":[0,1],"exp":"Full-disk encryption and transparent data encryption both protect data at rest, on the storage media and in the database files respectively. TLS and IPSec protect data in transit as it crosses the network, not data sitting on disk. The scenario specifically asks about stored data, so the transit-focused options are incorrect."},{"id":56,"d":3,"type":"single","q":"Your company wants to deploy a security appliance that can monitor traffic and automatically drop malicious packets in real time, sitting directly in the path of network traffic. Which device placement and type meets this need?","opts":["An inline intrusion prevention system (IPS)","An out-of-band intrusion detection system (IDS) on a SPAN port","A passive network tap feeding a SIEM","A jump server in the management network"],"ans":[0],"exp":"An inline IPS sits directly in the traffic path and can actively block or drop malicious packets in real time. An IDS on a SPAN port and a passive tap only observe copies of traffic and can alert but cannot drop packets inline. A jump server provides controlled administrative access, not packet inspection or blocking."},{"id":57,"d":3,"type":"single","q":"A security analyst discovers that backups have been running nightly but no one has ever confirmed the data can actually be restored. To validate recoverability without affecting production, what should the analyst do FIRST?","opts":["Perform a test restore of a sample dataset to an isolated environment","Switch the backup schedule from full to incremental","Move all backups to immutable cloud storage","Increase the backup retention period to one year"],"ans":[0],"exp":"Performing a test restore to an isolated environment is the only way to verify that backups are actually recoverable, and it does not disturb production. Changing the schedule to incremental or increasing retention does nothing to prove the existing backups work. Moving to immutable storage improves protection but still does not validate that a restore succeeds."},{"id":58,"d":3,"type":"single","q":"An organization classifies a dataset as containing names tied to medical diagnoses. Under data classification terminology, this combination is BEST described as which type of data?","opts":["Protected health information (PHI)","Intellectual property","Public data","Trade secret"],"ans":[0],"exp":"Health information linked to an identifiable individual is protected health information (PHI), which carries specific regulatory protections. Intellectual property and trade secrets refer to proprietary business information, not personal medical data. Public data is information that can be freely disclosed, which medical diagnoses tied to a person clearly are not."},{"id":59,"d":3,"type":"single","q":"A company operates two data centers and wants the secondary site to be fully equipped with live, replicated systems so it can assume production workloads within minutes of a primary failure. Which recovery site type is being described?","opts":["Hot site","Warm site","Cold site","Mobile site"],"ans":[0],"exp":"A hot site has live, replicated systems and data ready to take over almost immediately, providing the lowest recovery time. A warm site has hardware and connectivity but needs data loaded and configuration before use, taking longer. A cold site is just space and power with no equipment ready, and a mobile site is a transportable facility, neither offering instant failover."},{"id":60,"d":3,"type":"single","q":"A security analyst discovers that sensitive fields in a test database are exposed to developers in clear text. The team wants to replace the real values with fictitious but realistically formatted values so the data remains usable for testing but cannot be traced back to real individuals. Which method should be used?","opts":["Data masking","Hashing","Tokenization with a secure vault","Steganography"],"ans":[0],"exp":"Data masking replaces sensitive values with realistic but fictitious data so the dataset stays usable while real values are hidden, ideal for non-production environments. Hashing produces irreversible digests that are not realistically formatted for testing. Tokenization substitutes values with tokens mapped in a vault, used mainly for production systems like payment processing, and steganography hides data within other files rather than obscuring database fields."},{"id":61,"d":3,"type":"single","q":"During a power audit, an organization wants to keep critical servers running through brief utility outages and provide enough runtime for an orderly shutdown or generator startup. Which solution directly addresses momentary power loss and conditioning?","opts":["An uninterruptible power supply (UPS)","A backup generator alone","Dual power supplies in each server","A managed PDU with remote outlet control"],"ans":[0],"exp":"A UPS provides immediate battery-backed power and conditioning to bridge momentary outages and allow time for an orderly shutdown or generator transfer. A generator alone has a startup delay and cannot cover the gap during the first seconds of an outage. Dual power supplies protect against a single supply failure, and a managed PDU provides outlet control, but neither bridges a utility power loss."},{"id":62,"d":3,"type":"single","q":"An organization must ensure that a single component failure never takes the entire service offline. Which design principle should guide the architecture to eliminate single points of failure?","opts":["Build in redundancy across critical components","Reduce the attack surface by consolidating to one server","Implement least privilege on all accounts","Apply default-deny firewall rules"],"ans":[0],"exp":"Designing redundancy across critical components ensures no single failure can bring down the service, directly addressing single points of failure. Consolidating to one server actually creates a single point of failure. Least privilege and default-deny are valuable security controls but they govern access and traffic, not availability or fault tolerance."},{"id":63,"d":3,"type":"single","q":"A security analyst discovers that an attacker who compromised a marketing workstation was able to reach the finance database server without any restriction because the flat network allowed unrestricted east-west traffic. Which architectural approach would BEST limit this lateral movement?","opts":["Network segmentation with microsegmentation between zones","Deploying a host-based antivirus on every endpoint","Enabling a VPN for all remote users","Increasing the strength of the database administrator password"],"ans":[0],"exp":"Segmentation, and microsegmentation in particular, restricts east-west traffic between workloads so a compromised host cannot freely reach sensitive systems. Host-based antivirus may catch some malware but does not stop network-level lateral movement. A VPN protects remote access traffic and a stronger DBA password helps credential security, but neither limits movement across an already-flat internal network."},{"id":64,"d":3,"type":"single","q":"An organization is choosing a backup strategy where the first backup captures all data and each subsequent backup captures only the data changed since the previous backup. Restoration requires the last full plus every subsequent backup in order. Which backup type is described?","opts":["Incremental","Differential","Full","Snapshot"],"ans":[0],"exp":"Incremental backups capture only data changed since the last backup of any type, so a restore needs the last full plus every incremental in sequence. Differential backups capture everything changed since the last full, requiring only the full plus the most recent differential to restore. A full backup copies everything each time, and a snapshot is a point-in-time image, neither matching the described chained restore."},{"id":65,"d":3,"type":"multi","q":"A company is hardening an Internet of Things (IoT) and operational technology (OT) deployment in a manufacturing plant. Which TWO architecture considerations are MOST appropriate given that many of these devices cannot be patched and use weak default protocols? (Choose TWO)","opts":["Isolate the OT/IoT devices on segmented networks with strict access control","Deploy compensating controls such as network monitoring in front of the devices","Require each device to run a full endpoint detection and response (EDR) agent","Expose the devices directly to the internet for vendor remote management"],"ans":[0,1],"exp":"Because many OT/IoT devices cannot be patched and use weak protocols, isolating them on segmented networks and placing compensating controls like network monitoring in front of them are the appropriate responses. Most constrained IoT/OT devices cannot run a full EDR agent, so that requirement is unrealistic. Exposing the devices directly to the internet dramatically increases risk and is the opposite of secure design."},{"id":66,"d":3,"type":"single","q":"Your company wants to provide secure administrative access to servers in a sensitive zone by forcing all admin connections through a single hardened, monitored host before they can reach the protected systems. Which solution provides this?","opts":["A jump server (jump box) in a bastion configuration","A load balancer in front of the servers","A reverse proxy for inbound web traffic","An air-gapped management workstation in a separate building"],"ans":[0],"exp":"A jump server, or bastion host, forces all administrative connections through a single hardened and monitored point before reaching protected systems. A load balancer distributes traffic for availability and a reverse proxy mediates inbound application traffic, neither providing controlled admin access. An air-gapped workstation has no network path to the servers at all, so it could not be used to administer them over the network."},{"id":67,"d":3,"type":"single","q":"An organization is selecting an encryption approach for a payment system and wants to replace credit card numbers with non-sensitive substitute values that have no mathematical relationship to the original and require a secure lookup service to reverse. Which technique is this?","opts":["Tokenization","Symmetric encryption","Salting","Obfuscation through encoding"],"ans":[0],"exp":"Tokenization replaces sensitive values with unrelated tokens that can only be mapped back to the original through a secure token vault, with no mathematical relationship to the data. Symmetric encryption transforms the data using a key but the ciphertext is mathematically derived from the plaintext. Salting adds randomness to hashing, and encoding is reversible formatting, not a security control, so neither fits."},{"id":68,"d":3,"type":"single","q":"A security analyst discovers that the recovery time objective (RTO) for a critical billing system is two hours, but the current cold site would take three days to bring online. The organization wants to meet the RTO at the lowest reasonable cost. What should the organization do FIRST?","opts":["Re-evaluate the recovery site strategy, considering a warm or hot site to meet the two-hour RTO","Lengthen the RTO to three days to match the existing cold site","Purchase a second cold site for geographic redundancy","Switch the backup type from differential to incremental"],"ans":[0],"exp":"The cold site cannot meet a two-hour RTO, so the first step is to re-evaluate the recovery site strategy and move toward a warm or hot site that can satisfy the objective. Lengthening the RTO ignores the business requirement rather than meeting it. Adding another cold site does not improve recovery speed, and changing the backup type does not address the multi-day site activation delay."},{"id":69,"d":3,"type":"single","q":"An organization wants to distribute incoming web requests across multiple application servers to improve performance and ensure that if one server fails, the others continue serving traffic. Which appliance provides this capability?","opts":["Load balancer","Web application firewall","Forward proxy","Network intrusion detection system"],"ans":[0],"exp":"A load balancer distributes incoming requests across multiple servers and routes around failed nodes, improving both performance and availability. A web application firewall inspects and filters web traffic for attacks but does not distribute load. A forward proxy mediates outbound client traffic, and an IDS only monitors traffic, so neither provides load distribution or failover."},{"id":70,"d":3,"type":"single","q":"A security analyst discovers that a vendor is transmitting batch files of customer Social Security numbers to a partner over an unencrypted FTP connection. Which data state is at greatest risk, and what control addresses it?","opts":["Data in transit; implement an encrypted protocol such as SFTP or FTPS","Data at rest; implement full-disk encryption on the FTP server","Data in use; implement memory encryption on the application","Data in transit; implement stronger file system permissions"],"ans":[0],"exp":"The Social Security numbers are data in transit while crossing the network over unencrypted FTP, so the fix is to use an encrypted transport protocol like SFTP or FTPS. Full-disk encryption protects data at rest on storage, not data moving over the wire. Memory encryption addresses data in use during processing, and file system permissions do not protect data while it traverses the network."},{"id":71,"d":3,"type":"single","q":"An organization is evaluating cloud deployment models and needs an environment that is shared among several organizations with common compliance and security requirements, such as a group of healthcare providers. Which model fits this need?","opts":["Community cloud","Public cloud","Private cloud","Hybrid cloud"],"ans":[0],"exp":"A community cloud is shared by multiple organizations with common requirements, such as a set of healthcare providers needing the same compliance posture. A public cloud is open to any tenant and a private cloud is dedicated to a single organization. A hybrid cloud combines two or more models, which is broader than the described shared-community use case."},{"id":72,"d":3,"type":"single","q":"A company wants to test its disaster recovery plan by having teams talk through their roles and the recovery steps in a conference room, without actually failing over any systems. Which type of exercise is this?","opts":["Tabletop exercise","Full-scale failover test","Parallel processing test","Simulation with live system shutdown"],"ans":[0],"exp":"A tabletop exercise is a discussion-based walkthrough where teams talk through their roles and recovery steps without touching production systems. A full-scale failover test and a live system shutdown actually move workloads and carry real operational risk. A parallel processing test runs recovery systems alongside production, which is more involved than a conference-room discussion."},{"id":73,"d":3,"type":"single","q":"An organization must protect a high-value internal certificate authority's private key against extraction, even by privileged administrators, by storing and using the key inside dedicated tamper-resistant hardware. Which solution should be used?","opts":["Hardware security module (HSM)","Trusted Platform Module (TPM) on a user laptop","Software-based key vault file","Self-signed certificate store"],"ans":[0],"exp":"A hardware security module is purpose-built tamper-resistant hardware for generating, storing, and using cryptographic keys so they cannot be extracted, making it ideal for protecting a CA private key. A TPM secures keys for an individual device but is not designed for enterprise CA key management. A software key vault file lacks the hardware tamper resistance, and a self-signed certificate store does not protect the private key in dedicated hardware."},{"id":74,"d":3,"type":"single","q":"A security analyst discovers that the company's single internet circuit failed, taking down all external services for four hours. Which architecture consideration would have prevented the outage by providing an alternate path?","opts":["Redundant internet connections from diverse providers (multipath/diversity)","Increasing the bandwidth of the existing single circuit","Deploying a stateful firewall at the perimeter","Enabling Quality of Service (QoS) on the router"],"ans":[0],"exp":"Redundant internet connections from diverse providers ensure an alternate path remains available if one circuit fails, addressing the single point of failure. Increasing bandwidth on the one circuit does nothing if that circuit goes down. A stateful firewall provides filtering and QoS prioritizes traffic, but neither provides a backup path for connectivity."},{"id":75,"d":3,"type":"single","q":"An organization wants to label data so that handling rules are enforced automatically as files move through email and cloud storage. Assigning categories like Public, Internal, Confidential, and Restricted is an example of which practice?","opts":["Data classification","Data sovereignty","Data minimization","Data masking"],"ans":[0],"exp":"Assigning sensitivity categories such as Public, Internal, Confidential, and Restricted is data classification, which drives automated handling and protection rules. Data sovereignty concerns the legal jurisdiction where data resides. Data minimization limits how much data is collected, and data masking obscures field values, none of which describe the labeling of data by sensitivity level."},{"id":76,"d":3,"type":"single","q":"A security analyst discovers that hosts in the screened subnet can initiate connections directly to the internal database tier. According to secure zone design, which statement describes what should happen instead?","opts":["Traffic from the screened subnet to the internal zone should be restricted and pass through a filtering control, not flow directly","The screened subnet should be merged with the internal zone to simplify routing","The database tier should be moved into the screened subnet","All zones should be placed on the same VLAN to ease monitoring"],"ans":[0],"exp":"Secure zone design dictates that traffic from a lower-trust zone like the screened subnet to a higher-trust internal zone must be tightly restricted and pass through a filtering control, never flowing directly. Merging the screened subnet with the internal zone or placing all zones on one VLAN destroys segmentation. Moving the database into the screened subnet exposes a sensitive asset to a lower-trust zone, increasing risk."},{"id":77,"d":3,"type":"single","q":"Which of the following is the LEAST appropriate use of a virtual private network (VPN) concentrator in an enterprise security architecture?","opts":["Replacing network segmentation to isolate internal workloads from each other","Terminating remote-access client tunnels for traveling employees","Establishing site-to-site encrypted tunnels between branch offices","Encrypting traffic between a remote workforce and corporate resources"],"ans":[0],"exp":"A VPN concentrator encrypts traffic and terminates remote-access and site-to-site tunnels, but it is not a tool for isolating internal workloads from each other, which is the job of segmentation. Terminating client tunnels, building site-to-site tunnels, and encrypting remote workforce traffic are all proper uses of a VPN concentrator. Therefore replacing segmentation is the least appropriate use."},{"id":78,"d":3,"type":"single","q":"An organization stores backups on tape and wants to ensure that even if ransomware compromises production systems and connected backup servers, at least one copy of the data cannot be altered or deleted. Which approach BEST achieves this?","opts":["Maintain an offline (air-gapped) or immutable backup copy","Increase the frequency of online incremental backups","Store all backups on the same SAN as production for speed","Shorten the backup retention window to reduce exposure"],"ans":[0],"exp":"An offline air-gapped or immutable backup copy cannot be reached, altered, or deleted by ransomware that compromises connected systems, preserving a clean recovery point. More frequent online incremental backups still reside on reachable systems that ransomware could encrypt. Storing backups on the production SAN puts them in the blast radius, and shortening retention reduces, rather than protects, recoverable copies."},{"id":79,"d":3,"type":"single","q":"A company wants its e-commerce platform to remain available even if an entire cloud availability zone goes offline, by running active instances in multiple zones behind a global load balancer. Which resilience concept is being applied?","opts":["High availability through geographic/zone redundancy","Vertical scaling of a single large instance","Cold standby in a single zone","Reduced attack surface through consolidation"],"ans":[0],"exp":"Running active instances across multiple availability zones behind a load balancer delivers high availability by tolerating the loss of an entire zone. Vertical scaling makes one instance bigger but still leaves it in a single zone as a point of failure. A cold standby in one zone cannot survive that zone failing, and consolidation reduces attack surface but works against availability."},{"id":80,"d":4,"type":"single","q":"A security analyst is deploying 200 new Windows workstations and wants each one to start from a known-good, hardened configuration that disables unused services, enforces password policy, and removes default accounts. Which approach BEST establishes this starting point?","opts":["Apply a secure baseline derived from a CIS Benchmark via group policy","Run a credentialed vulnerability scan on each workstation after imaging","Enable host-based IPS on every workstation","Deploy an EDR agent and rely on its default detection rules"],"ans":[0],"exp":"A secure baseline (such as one based on a CIS Benchmark) defines the known-good hardened state and can be enforced consistently across many systems through group policy. Vulnerability scanning detects deviations but does not establish the configuration. EDR and host IPS detect or block malicious behavior but do not harden the OS settings themselves."},{"id":81,"d":4,"type":"single","q":"An organization must allow employees to use their personal smartphones for corporate email while ensuring the company can wipe only corporate data if a device is lost. Which deployment model and capability BEST meets this requirement?","opts":["COPE with full-device remote wipe","BYOD with containerization and selective wipe via MDM","CYOD with a hardware security module","COBO with geofencing only"],"ans":[1],"exp":"BYOD with containerization separates corporate data from personal data, and selective wipe through MDM removes only the corporate container, preserving the user's personal content. COPE and COBO are company-owned models that typically allow full-device wipe, which would also destroy personal data. A geofence alone does not remove data, and an HSM is unrelated to selective wipe."},{"id":82,"d":4,"type":"single","q":"During a wireless upgrade, your company wants to eliminate the offline dictionary attacks that were possible against the pre-shared key in the previous standard. Which WPA3 feature directly addresses this?","opts":["Simultaneous Authentication of Equals (SAE)","Protected Management Frames (PMF) only","Opportunistic Wireless Encryption (OWE)","Faster roaming with 802.11r"],"ans":[0],"exp":"SAE replaces the WPA2 four-way handshake's PSK exchange with a dragonfly key-exchange that resists offline dictionary attacks even when a weak password is used. OWE secures open networks but is not the PSK mechanism. PMF protects management frames from spoofing but does not stop dictionary attacks on the key. 802.11r addresses roaming speed, not password cracking."},{"id":83,"d":4,"type":"single","q":"A developer needs to run a downloaded third-party library to evaluate its behavior without risking the host system or the corporate network. Which control BEST isolates the untrusted code during evaluation?","opts":["Static application security testing (SAST)","A sandbox environment","Code signing verification","Input validation"],"ans":[1],"exp":"A sandbox provides an isolated execution environment where untrusted code can run without affecting the host or network, making it ideal for behavioral evaluation. SAST analyzes source code without executing it. Code signing verifies authorship and integrity but does not contain runtime behavior. Input validation protects an application's own inputs, not the host from arbitrary library behavior."},{"id":84,"d":4,"type":"single","q":"A security team cannot accurately patch or decommission systems because no one knows which servers are still in production, who owns them, or where they physically reside. Which capability MOST directly solves this gap?","opts":["Vulnerability scanning","Asset management with inventory and ownership tracking","Security information and event management (SIEM)","Data loss prevention (DLP)"],"ans":[1],"exp":"Asset management maintains an authoritative inventory including ownership, location, and lifecycle status, which is the foundation for knowing what exists and who is responsible. Vulnerability scanning finds flaws but does not assign ownership or track lifecycle. SIEM aggregates logs, and DLP prevents data exfiltration; neither establishes an asset inventory."},{"id":85,"d":4,"type":"multi","q":"An organization is building a vulnerability management program. Which of the following are legitimate ways to VALIDATE that a remediation actually fixed a vulnerability? (Choose TWO)","opts":["Run a re-scan (rescanning) of the affected hosts after patching","Assume the vendor patch worked because it was released","Conduct a targeted penetration test against the specific finding","Lower the CVSS base score in the tracking system","Mark the ticket closed in the ITSM tool"],"ans":[0,2],"exp":"Re-scanning confirms the scanner no longer detects the flaw, and a targeted penetration test independently proves the vulnerability can no longer be exploited; both are valid validation methods. Assuming a patch worked, editing a CVSS score, or simply closing a ticket are administrative actions that provide no technical evidence the issue was resolved."},{"id":86,"d":4,"type":"single","q":"A vulnerability report lists a finding with a CVSS base score of 9.8 and a CVE identifier. The analyst asks what the CVE specifically provides. Which statement is correct?","opts":["The CVE is a standardized unique identifier for the specific known vulnerability","The CVE is the numeric severity rating from 0.0 to 10.0","The CVE is the framework used to calculate exploitability and impact","The CVE is the database of secure configuration baselines"],"ans":[0],"exp":"A CVE (Common Vulnerabilities and Exposures) entry is a standardized, unique identifier that catalogs a specific known vulnerability so different tools can reference it consistently. The 0.0 to 10.0 severity rating is CVSS, not CVE. CVSS is also the scoring framework that calculates exploitability and impact. Configuration baselines are catalogued under CCE/SCAP, not CVE."},{"id":87,"d":4,"type":"single","q":"A security analyst discovers that a credentialed scan and an unauthenticated scan of the same server produced very different results, with the credentialed scan finding far more issues. Which statement BEST explains this?","opts":["Credentialed scans log in to the host and can inspect installed software and configuration the unauthenticated scan cannot see","Unauthenticated scans always produce more false negatives because they crash services","Credentialed scans only detect web application flaws","Unauthenticated scans require the SCAP protocol to function"],"ans":[0],"exp":"A credentialed scan authenticates to the host and can read installed package versions, registry settings, and local configuration, revealing issues an external view cannot detect. Unauthenticated scans see only what is exposed over the network, so they typically find fewer issues. They do not inherently crash services, are not limited to web flaws, and do not require SCAP."},{"id":88,"d":4,"type":"single","q":"A vulnerability scan flags a critical finding, but after investigation the analyst confirms the affected component is not actually installed and the system is not exploitable. How should this finding be classified and handled?","opts":["True positive requiring immediate patching","False positive that should be documented and suppressed","False negative requiring a deeper scan","True negative requiring escalation"],"ans":[1],"exp":"A finding the scanner reported but that does not actually exist on the system is a false positive, which should be verified, documented, and suppressed or tuned out to reduce noise. A true positive would be a real, present vulnerability. A false negative is a real vulnerability the scanner missed. A true negative is correctly reporting no issue, which would not have been flagged in the first place."},{"id":89,"d":4,"type":"single","q":"An organization wants to automate the assessment of system configurations against published security baselines and produce machine-readable compliance results across many tools. Which standard is designed for this purpose?","opts":["NetFlow","SCAP","Syslog","STIX"],"ans":[1],"exp":"SCAP (Security Content Automation Protocol) standardizes how security configuration and vulnerability data are expressed and exchanged so different tools can automate compliance checking against baselines. NetFlow records network traffic flow metadata. Syslog is a logging transport format. STIX is a format for sharing cyber threat intelligence, not configuration compliance."},{"id":90,"d":4,"type":"single","q":"A security analyst discovers unusually large outbound data transfers and wants to identify which internal hosts are talking to which external IPs, on what ports, and how much data moved, without capturing full packet payloads. Which data source BEST provides this?","opts":["NetFlow records","Full packet capture (PCAP)","DLP policy logs","Antivirus quarantine logs"],"ans":[0],"exp":"NetFlow provides metadata about conversations including source, destination, ports, and byte counts, which is ideal for spotting volumetric anomalies without storing payloads. Full packet capture would work but is far heavier and was specifically excluded by the no-payload requirement. DLP logs show policy matches on content, and antivirus quarantine logs show malware detections, neither of which gives the flow-level traffic picture requested."},{"id":91,"d":4,"type":"single","q":"A company wants to prevent users from emailing files that contain customer Social Security numbers to external recipients. Which technology is purpose-built to detect and block this based on content inspection?","opts":["Data loss prevention (DLP)","Intrusion detection system (IDS)","DNS filtering","File integrity monitoring (FIM)"],"ans":[0],"exp":"DLP inspects content using pattern matching and classifiers to detect sensitive data like SSNs and can block or quarantine transfers that violate policy. An IDS detects network attacks but does not enforce data-content policy. DNS filtering blocks domain resolution. FIM detects unauthorized changes to files, not exfiltration of sensitive content."},{"id":92,"d":4,"type":"single","q":"A security analyst discovers that an attacker modified a critical system binary on a production server. Which control would have ALERTED the team that the file had been altered from its known-good state?","opts":["File integrity monitoring (FIM)","Web application firewall (WAF)","Network access control (NAC)","Email gateway"],"ans":[0],"exp":"FIM maintains cryptographic hashes of critical files and alerts when a file's hash changes from its baseline, which directly detects unauthorized modification of a system binary. A WAF inspects web traffic, NAC controls device admission to the network, and an email gateway filters mail; none of these monitor on-disk file integrity."},{"id":93,"d":4,"type":"single","q":"Your company wants to ensure that any laptop connecting to the corporate LAN has an up-to-date EDR agent and current patches before it is granted network access. Which technology enforces this posture check at connection time?","opts":["Network access control (NAC)","Intrusion prevention system (IPS)","Security orchestration, automation, and response (SOAR)","Web filter"],"ans":[0],"exp":"NAC performs posture assessment and admission control, allowing it to verify that a connecting device meets policy (agent present, patched) before granting access and to quarantine devices that fail. An IPS blocks malicious traffic but does not perform posture-based admission. SOAR automates response workflows, and a web filter controls outbound browsing; neither gates LAN access by device health."},{"id":94,"d":4,"type":"single","q":"A security analyst discovers spoofed emails being sent that appear to come from the company's domain. The team wants to publish a policy telling receiving mail servers to reject messages that fail authentication and to receive reports about abuse. Which mechanism provides this policy and reporting layer?","opts":["DMARC","SPF","DKIM","TLS"],"ans":[0],"exp":"DMARC builds on SPF and DKIM to publish an enforcement policy (such as reject or quarantine) for messages that fail alignment, and it provides aggregate and forensic reporting back to the domain owner. SPF authorizes sending IPs and DKIM signs messages, but neither alone specifies the receiver's enforcement action or generates the abuse reports. TLS encrypts the transport, not message authentication policy."},{"id":95,"d":4,"type":"multi","q":"A security team wants layered protection against malware and command-and-control traffic at the network egress. Which TWO controls specifically help block access to known-malicious or unwanted domains and URLs? (Choose TWO)","opts":["DNS filtering","URL/web content filtering","File integrity monitoring","Simultaneous Authentication of Equals","Asset tagging"],"ans":[0,1],"exp":"DNS filtering blocks resolution of known-malicious or policy-violating domains, and URL/web content filtering inspects and blocks access to specific URLs and content categories; both directly restrict egress to unwanted destinations. FIM monitors file changes, SAE is a WPA3 key-exchange, and asset tagging is an inventory practice, none of which filter outbound domain or URL access."},{"id":96,"d":4,"type":"single","q":"A security analyst discovers an account that suddenly logged in from two different countries within ten minutes and began accessing files it had never touched before. Which monitoring capability is MOST designed to flag this kind of behavioral anomaly?","opts":["User behavior analytics (UBA)","Signature-based antivirus","File integrity monitoring","SPF validation"],"ans":[0],"exp":"UBA establishes baselines of normal user activity and flags deviations such as impossible-travel logins and atypical data access, which is exactly the scenario described. Signature-based antivirus matches known malware patterns, FIM watches file changes, and SPF validates sending mail servers; none model user behavior to detect anomalous account activity."},{"id":97,"d":4,"type":"single","q":"A company is comparing detection approaches. They want a system that not only detects suspicious activity on endpoints but also correlates and responds across endpoints, network, email, and cloud from a single platform. Which solution BEST fits this requirement?","opts":["EDR","XDR","HIDS","Antivirus"],"ans":[1],"exp":"XDR (extended detection and response) correlates and responds to telemetry across multiple domains such as endpoint, network, email, and cloud from a unified platform. EDR focuses on endpoints alone. HIDS detects intrusions on a single host, and traditional antivirus relies mainly on signature matching; none provide the cross-domain correlation that defines XDR."},{"id":98,"d":4,"type":"single","q":"A security analyst discovers active exploitation of a server and must contain it. The analyst can take only ONE action right now. Which should be performed FIRST to stop the ongoing compromise while preserving the ability to investigate?","opts":["Isolate the server from the network","Reimage the server immediately","Run a full vulnerability scan of the subnet","Submit a patch request to the change board"],"ans":[0],"exp":"Isolating the server from the network stops the active compromise and lateral movement while preserving the system state for forensic investigation, making it the correct first containment action. Reimaging immediately destroys evidence. A vulnerability scan does not stop the attack, and a change-board patch request is far too slow for an active incident."},{"id":99,"d":4,"type":"single","q":"A newly published critical CVE is being actively exploited in the wild and affects an internet-facing application your company runs. No vendor patch exists yet. What should the team do FIRST to reduce immediate exposure?","opts":["Apply a compensating control such as a WAF rule or virtual patch to block the exploit","Wait for the vendor patch and document the risk","Decommission the application permanently","Lower the asset's classification level"],"ans":[0],"exp":"When no patch exists for an actively exploited internet-facing flaw, applying a compensating control like a WAF rule or virtual patch reduces exposure immediately, which is the priority. Waiting leaves the system exploitable during active attacks. Permanent decommissioning is disproportionate for a first action and may not be feasible, and changing the asset's classification does nothing to block the exploit."},{"id":100,"d":4,"type":"single","q":"Which of the following is LEAST appropriate as a method for hardening a server's secure baseline?","opts":["Disabling unnecessary services and ports","Removing or renaming default accounts","Applying the principle of least functionality","Opening additional administrative ports to ease remote management"],"ans":[3],"exp":"Opening additional administrative ports expands the attack surface and contradicts hardening goals, making it the least appropriate choice. Disabling unneeded services and ports, removing default accounts, and applying least functionality all reduce attack surface and are core hardening practices."},{"id":101,"d":4,"type":"single","q":"A security analyst discovers that an inline detection device on the network perimeter is generating alerts about a SQL injection attempt but the malicious traffic still reached the web server. The team wants a device that can actively DROP such traffic in real time rather than only alert. Which should they deploy?","opts":["Intrusion prevention system (IPS)","Intrusion detection system (IDS)","NetFlow collector","Syslog server"],"ans":[0],"exp":"An IPS sits inline and can actively block or drop malicious traffic in real time, preventing it from reaching the target. An IDS only detects and alerts on traffic that has already passed, which matches the failure described. A NetFlow collector gathers flow metadata and a syslog server stores logs; neither inspects and blocks attack traffic inline."},{"id":102,"d":4,"type":"single","q":"A security analyst discovers that a contractor who left the company three months ago still has an active account that was recently used to access a file share. Which identity lifecycle process failed?","opts":["Provisioning","Deprovisioning","Identity proofing","Attestation"],"ans":[1],"exp":"Deprovisioning is the offboarding process that disables or removes accounts when a user leaves; its failure left the contractor's account active. Provisioning is account creation, not removal. Identity proofing verifies who a user is at enrollment, and attestation is periodic review of access rather than the act of removing it."},{"id":103,"d":4,"type":"single","q":"An organization wants employees to log in once to a central identity provider and then access multiple cloud SaaS applications without re-entering credentials, with the apps trusting assertions from that provider. Which technology BEST meets this need?","opts":["LDAP","SAML","RADIUS","TACACS+"],"ans":[1],"exp":"SAML (Security Assertion Markup Language) is the XML-based standard that lets an identity provider issue authentication assertions that service providers trust, enabling web SSO across SaaS apps. LDAP is a directory access protocol, not a federation/SSO assertion standard. RADIUS and TACACS+ are AAA protocols typically used for network device and remote-access authentication, not browser-based SaaS federation."},{"id":104,"d":4,"type":"single","q":"A developer needs a mobile app to access a user's photos stored in a third-party service without the user sharing their password with the app. Which framework is designed for this delegated authorization?","opts":["OAuth 2.0","Kerberos","SAML","802.1X"],"ans":[0],"exp":"OAuth 2.0 is an authorization framework that issues access tokens so an app can act on a resource on the user's behalf without handling the user's password. Kerberos is a ticket-based network authentication protocol for internal domains. SAML handles authentication/SSO assertions rather than scoped API authorization, and 802.1X is port-based network access control."},{"id":105,"d":4,"type":"single","q":"In a defense facility, every file is labeled (e.g., Secret, Top Secret) and the operating system enforces access strictly based on the user's clearance and the object's classification; users cannot change these permissions. Which access control model is this?","opts":["Discretionary access control (DAC)","Mandatory access control (MAC)","Role-based access control (RBAC)","Attribute-based access control (ABAC)"],"ans":[1],"exp":"MAC enforces access through system-wide labels and clearances that ordinary users cannot alter, which is common in classified government environments. DAC lets the resource owner set permissions at their discretion. RBAC grants access by job role, and ABAC evaluates dynamic attributes; neither is defined primarily by mandatory classification labels enforced by the OS."},{"id":106,"d":4,"type":"single","q":"A company wants access decisions evaluated dynamically based on conditions such as the user's department, device compliance state, time of day, and geographic location. Which access control model BEST supports these conditions?","opts":["Rule-based access control","Role-based access control (RBAC)","Attribute-based access control (ABAC)","Mandatory access control (MAC)"],"ans":[2],"exp":"ABAC makes access decisions by evaluating multiple attributes about the subject, resource, action, and environment, which is ideal for conditions like device state, time, and location. RBAC is limited to assigning access by static role. Rule-based control applies global if/then rules but lacks the rich multi-attribute context of ABAC, and MAC relies on classification labels."},{"id":107,"d":4,"type":"single","q":"Which of the following is an example of the authentication factor 'something you are'?","opts":["A hardware token that generates a one-time code","A fingerprint scan","A PIN entered at login","A smart card inserted into a reader"],"ans":[1],"exp":"A fingerprint is a biometric, which is the 'something you are' (inherence) factor. A hardware token and a smart card are 'something you have' (possession) factors. A PIN is 'something you know' (knowledge). Mixing factor categories is what makes authentication multifactor."},{"id":108,"d":4,"type":"single","q":"A security analyst is implementing privileged access management and wants administrators to receive elevated rights only for the brief window they need to perform a task, with rights automatically revoked afterward. Which PAM concept does this describe?","opts":["Password vaulting","Just-in-time (JIT) permissions","Federation","Single sign-on"],"ans":[1],"exp":"Just-in-time permissions grant elevated access only for the moment it is needed and remove it automatically afterward, shrinking the window of standing privilege. Password vaulting securely stores and brokers credentials but does not by itself time-box elevation. Federation and SSO address authentication across systems, not temporary privilege elevation."},{"id":109,"d":4,"type":"multi","q":"An organization is hardening privileged access management. Which of the following are valid PAM techniques for reducing the risk of compromised or misused privileged credentials? (Choose TWO)","opts":["Ephemeral credentials that expire after a single session","Storing admin passwords in a shared spreadsheet","Password vaulting with automated check-out and rotation","Disabling logging on privileged sessions"],"ans":[0,2],"exp":"Ephemeral credentials exist only for a single session and then expire, eliminating long-lived secrets. Password vaulting with check-out and automatic rotation centralizes and controls privileged credentials. A shared spreadsheet of passwords removes accountability and is insecure, and disabling logging on privileged sessions destroys the audit trail PAM is meant to provide."},{"id":110,"d":4,"type":"single","q":"Which password concept makes it computationally harder for an attacker to use precomputed rainbow tables against a stolen password hash database?","opts":["Salting","Password complexity rules","Password expiration","Account lockout"],"ans":[0],"exp":"Salting adds a unique random value to each password before hashing, so identical passwords produce different hashes and precomputed rainbow tables become useless. Complexity rules govern what characters a password must contain but do not defeat rainbow tables on their own. Expiration and lockout limit credential lifetime and guessing attempts but do not address hash precomputation."},{"id":111,"d":4,"type":"single","q":"A security team wants to automatically open a ticket, isolate the affected host, and notify the on-call analyst whenever the SIEM detects a confirmed malware alert, without manual steps. Which capability BEST enables this?","opts":["A configuration management database (CMDB)","Security orchestration, automation, and response (SOAR)","A vulnerability scanner","A jump server"],"ans":[1],"exp":"SOAR uses playbooks to automatically execute response actions such as ticketing, host isolation, and notification when triggered by alerts, reducing manual workload. A CMDB stores asset and configuration data but does not orchestrate response. A vulnerability scanner finds weaknesses, and a jump server provides controlled administrative access, neither of which automates incident response workflows."},{"id":112,"d":4,"type":"single","q":"An organization is automating its user onboarding so new hires automatically receive standard accounts, group memberships, and application access based on their role. Which benefit of automation does this MOST directly provide?","opts":["Decreased reaction time to zero-day exploits","Workforce multiplier and consistent, repeatable provisioning","Elimination of the need for any access reviews","Guaranteed compliance with all regulations"],"ans":[1],"exp":"Automating provisioning acts as a workforce multiplier and ensures every new hire is set up consistently and repeatably, reducing manual error. It is not primarily about zero-day reaction time. Automation does not eliminate the need for periodic access reviews, and no single automation can guarantee full regulatory compliance."},{"id":113,"d":4,"type":"single","q":"During a confirmed ransomware incident, the response team has just verified the alert is a true incident. According to the NIST/PICERL phases, after preparation and identification, what is the NEXT phase the team should move into?","opts":["Eradication","Containment","Recovery","Lessons learned"],"ans":[1],"exp":"In the PICERL model (Preparation, Identification, Containment, Eradication, Recovery, Lessons learned), containment immediately follows identification to limit the spread of damage. Eradication (removing the threat) and recovery (restoring systems) come after containment. Lessons learned is the final phase after recovery."},{"id":114,"d":4,"type":"single","q":"During an incident, an analyst must collect digital evidence from a running system. According to the order of volatility, which data source should be collected FIRST?","opts":["Data on the hard disk","Archived backup media","CPU registers and cache","Log files on a remote server"],"ans":[2],"exp":"The order of volatility prioritizes collecting the most ephemeral data first; CPU registers and cache are the most volatile and disappear almost immediately. Disk data is far less volatile and persists after power-off. Remote logs and archived backups are the least volatile and most durable, so they are collected last."},{"id":115,"d":4,"type":"single","q":"A security analyst is preparing evidence from a compromised laptop for potential litigation. To ensure the evidence is admissible, which practice documents every person who handled the evidence and when, from collection through analysis?","opts":["Legal hold","Chain of custody","E-discovery","Data retention policy"],"ans":[1],"exp":"Chain of custody documents every individual who possessed or handled the evidence and the times of transfer, preserving integrity and admissibility. A legal hold is an order to preserve relevant data so it is not destroyed. E-discovery is the process of identifying and producing electronic evidence, and a retention policy governs how long data is kept; none of these track handler-by-handler custody."},{"id":116,"d":4,"type":"single","q":"Your company's legal department learns that litigation is likely and instructs IT to suspend the automatic deletion of relevant emails and files so they are not destroyed. What is this directive called?","opts":["Chain of custody","Legal hold","Tabletop exercise","Order of volatility"],"ans":[1],"exp":"A legal hold (litigation hold) suspends normal data destruction to preserve information relevant to anticipated or active litigation. Chain of custody tracks who handled evidence, not preservation orders. A tabletop exercise is a discussion-based incident response drill, and order of volatility governs the sequence of evidence collection."},{"id":117,"d":4,"type":"single","q":"A security analyst discovers that an attacker established persistence and the team has just removed the malware and rebuilt the affected systems. Which incident response phase comes NEXT before declaring the incident closed?","opts":["Containment","Recovery","Identification","Eradication"],"ans":[1],"exp":"After eradication (removing the threat and rebuilding systems), recovery restores systems to normal operation and validates they are clean before returning them to production. Containment and identification occur earlier in the lifecycle. Eradication is the phase just completed, so the next logical step is recovery."},{"id":118,"d":4,"type":"single","q":"An analyst needs to determine which user account authenticated to a Windows domain controller at a specific time and whether the logon succeeded or failed. Which log source is MOST useful?","opts":["Firewall logs","Security (authentication) logs","DNS logs","Application logs"],"ans":[1],"exp":"Security/authentication logs record logon successes and failures with the associated account, directly answering who authenticated and when. Firewall logs show network traffic permits and denies, not domain logon outcomes. DNS logs record name resolution queries, and application logs capture application-specific events, none of which reliably show authentication results."},{"id":119,"d":4,"type":"single","q":"During an investigation, an analyst needs to examine the exact contents of network traffic, including payloads, to confirm whether sensitive data was exfiltrated. Which data source provides this level of detail?","opts":["NetFlow records","A full packet capture","SNMP traps","Syslog severity counts"],"ans":[1],"exp":"A full packet capture records complete packets including payloads, allowing the analyst to inspect the actual data transferred. NetFlow provides metadata about flows (source, destination, ports, volume) but not payload contents. SNMP traps report device events and syslog counts summarize messages; neither reveals packet payloads."},{"id":120,"d":4,"type":"multi","q":"A security analyst is selecting data sources to investigate a suspected web application compromise. Which of the following sources would directly help reconstruct the attacker's HTTP requests and the server's responses? (Choose TWO)","opts":["Web server access logs","The corporate badge-access system","Packet captures of the web traffic","Building HVAC telemetry"],"ans":[0,2],"exp":"Web server access logs record the URLs, methods, status codes, and source IPs of HTTP requests, helping reconstruct attacker activity. Packet captures of the web traffic preserve the full request and response contents. Badge-access records and HVAC telemetry are physical/environmental data with no relevance to reconstructing HTTP transactions."},{"id":121,"d":4,"type":"single","q":"A SOC manager wants a single consolidated visual view of alert volumes, top sources of malicious traffic, and current open incidents for leadership. Which investigation data source BEST provides this?","opts":["Raw syslog files","A SIEM dashboard","An individual host's event log","A packet capture file"],"ans":[1],"exp":"A SIEM dashboard aggregates and visualizes data from many sources into consolidated metrics and trends suited for at-a-glance monitoring and reporting. Raw syslog files and a single host's event log are unaggregated and not visual. A packet capture is detailed low-level traffic, not a management-level dashboard."},{"id":122,"d":4,"type":"single","q":"Which of the following is NOT a benefit typically associated with automation and orchestration in security operations?","opts":["Enforcing baselines consistently across systems","Reducing reaction time to security events","Introducing complexity and single points of failure","Acting as a workforce multiplier for the team"],"ans":[2],"exp":"Introducing complexity and single points of failure is a drawback (or consideration) of automation, not a benefit. Enforcing baselines consistently, reducing reaction time, and serving as a workforce multiplier are all recognized benefits of automation and orchestration. The question asks for the item that is not a benefit, which is the added complexity."},{"id":123,"d":4,"type":"single","q":"A security analyst discovers a suspected breach and confirms it is a real incident. Following the incident response process, what should the analyst do FIRST to limit damage before removing the threat?","opts":["Begin eradication by deleting the malware","Contain the affected systems to stop the spread","Hold a lessons-learned meeting","Restore systems from backup"],"ans":[1],"exp":"After identifying a confirmed incident, containment comes first to stop the threat from spreading while preserving evidence. Eradication (deleting malware) and recovery (restoring from backup) come after containment. A lessons-learned meeting is the final phase conducted after the incident is resolved, not the immediate first action."},{"id":124,"d":5,"type":"single","q":"A security analyst discovers that employees are unsure how to configure password complexity on a new application because the company's documentation only states that passwords must be 'strong.' Which type of governance document should be created to give step-by-step configuration instructions?","opts":["Policy","Standard","Procedure","Guideline"],"ans":[2],"exp":"A procedure provides the detailed, step-by-step instructions for carrying out a task, such as how to actually configure password complexity. A policy is a high-level statement of intent ('passwords must be strong'), and a standard defines mandatory specific requirements (e.g., minimum 12 characters) but not the steps. A guideline is only a recommendation, not mandatory instructions."},{"id":125,"d":5,"type":"single","q":"An organization assigns one individual final accountability for the security of a customer database while a database administrator handles day-to-day maintenance. Which role does the accountable individual occupy?","opts":["Data custodian","Data owner","Data processor","Data steward"],"ans":[1],"exp":"The data owner holds ultimate accountability for a data set, including classification and protection decisions. The data custodian (the DBA here) handles technical maintenance and implements controls but is not accountable. A data processor acts on behalf of a controller, and a data steward focuses on data quality and usage rather than overall accountability."},{"id":126,"d":5,"type":"single","q":"A company calculates that a single flood would destroy a server room valued at $400,000, causing total loss, and that such a flood occurs once every 20 years. What is the Annualized Loss Expectancy (ALE)?","opts":["$20,000","$8,000","$400,000","$40,000"],"ans":[0],"exp":"SLE = asset value x exposure factor = $400,000 x 1.0 = $400,000. ARO = 1/20 = 0.05. ALE = SLE x ARO = $400,000 x 0.05 = $20,000. The $8,000 and $40,000 figures come from miscomputing the ARO, and $400,000 is just the SLE for a single event."},{"id":127,"d":5,"type":"single","q":"Your company wants to express the maximum amount of risk it is willing to accept in pursuit of its objectives before taking action to reduce that risk. Which term describes this threshold?","opts":["Risk tolerance","Risk appetite","Risk threshold","Residual risk"],"ans":[1],"exp":"Risk appetite is the broad, strategic amount of risk an organization is willing to accept in pursuit of its goals. Risk tolerance is the acceptable variation around a specific risk and is narrower in scope. Residual risk is what remains after controls are applied, and 'risk threshold' is not a standard formal term for organizational appetite."},{"id":128,"d":5,"type":"single","q":"During a business impact analysis, a team determines that the payroll system can be unavailable for no more than 4 hours before unacceptable harm occurs. Which metric does the 4-hour figure represent?","opts":["RPO","MTBF","RTO","MTTR"],"ans":[2],"exp":"The Recovery Time Objective (RTO) is the maximum acceptable downtime before a process must be restored. RPO defines acceptable data loss measured in time, MTBF measures average time between failures (reliability), and MTTR measures the average time to repair a failed component, not the tolerable downtime target."},{"id":129,"d":5,"type":"single","q":"A security analyst must recommend a risk treatment for a low-probability, low-impact threat where the cost of any control would exceed the potential loss. Which risk management strategy is most appropriate?","opts":["Mitigation","Transference","Acceptance","Avoidance"],"ans":[2],"exp":"Risk acceptance is appropriate when the cost of a control exceeds the expected loss and the risk falls within the organization's appetite. Mitigation would waste money on a control costing more than the loss, transference (e.g., insurance) adds ongoing cost, and avoidance would mean abandoning the activity entirely, which is disproportionate for a minor risk."},{"id":130,"d":5,"type":"single","q":"An organization purchases cyber insurance to cover potential financial losses from a ransomware attack. Which risk management strategy is the organization primarily using?","opts":["Risk mitigation","Risk transference","Risk avoidance","Risk acceptance"],"ans":[1],"exp":"Buying insurance shifts the financial consequences of a risk to a third party, which is risk transference. Mitigation reduces likelihood or impact through controls, avoidance eliminates the risky activity, and acceptance means taking no action and absorbing the loss internally."},{"id":131,"d":5,"type":"single","q":"A company signs a legally binding contract with a cloud provider that guarantees 99.9% uptime and specifies financial penalties for missed targets. Which agreement type is this?","opts":["MOU","SLA","NDA","BPA"],"ans":[1],"exp":"A Service Level Agreement (SLA) defines measurable service expectations such as uptime, along with penalties for non-compliance. An MOU is a non-binding statement of intent, an NDA protects confidential information, and a BPA (Business Partnership Agreement) governs the relationship between business partners, not service metrics."},{"id":132,"d":5,"type":"single","q":"Two organizations wish to document their shared intent to collaborate on a research project, but neither wants a legally enforceable contract at this stage. Which document best fits this need?","opts":["MSA","SOW","MOU","SLA"],"ans":[2],"exp":"A Memorandum of Understanding (MOU) documents mutual intent and expectations without creating a legally binding obligation, making it ideal for early-stage collaboration. An MSA (Master Service Agreement) and SLA are binding, and an SOW (Statement of Work) details specific deliverables and timelines under an existing contract."},{"id":133,"d":5,"type":"single","q":"A security analyst is reviewing a vendor agreement and needs to identify the document that defines the specific deliverables, timeline, and milestones for a discrete project under an existing master contract. Which document is this?","opts":["MSA","SOW","BPA","MOA"],"ans":[1],"exp":"A Statement of Work (SOW) specifies the concrete deliverables, schedule, and milestones for a particular project, typically executed under an overarching Master Service Agreement (MSA). The MSA sets general terms, a BPA governs a business partnership, and an MOA is a more formal agreement of cooperation than an MOU but still does not enumerate project deliverables."},{"id":134,"d":5,"type":"single","q":"Under GDPR, an online retailer decides why and how customer personal data will be processed. A separate analytics firm processes that data only on the retailer's documented instructions. Which roles do the retailer and analytics firm hold, respectively?","opts":["Processor and controller","Controller and processor","Data subject and controller","Controller and data subject"],"ans":[1],"exp":"Under GDPR, the controller determines the purposes and means of processing (the retailer), while the processor acts solely on the controller's instructions (the analytics firm). The data subject is the individual whose data is processed, not either organization, so the options pairing them with 'data subject' are incorrect."},{"id":135,"d":5,"type":"single","q":"A European customer submits a request asking a company to erase all personal data it holds about them. Which GDPR right is the customer exercising?","opts":["Right to data portability","Right to be forgotten","Right of access","Right to rectification"],"ans":[1],"exp":"The right to be forgotten (right to erasure) lets a data subject request deletion of their personal data. Data portability concerns receiving data in a transferable format, the right of access lets a subject obtain a copy of their data, and rectification allows correction of inaccurate data, none of which involve erasure."},{"id":136,"d":5,"type":"single","q":"A security analyst discovers a critical vulnerability during an assessment and adds it to a centralized document that tracks each risk's owner, likelihood, impact, and chosen treatment. What is this document called?","opts":["Risk appetite statement","Risk register","Business impact analysis","Disaster recovery plan"],"ans":[1],"exp":"A risk register is the central record that catalogs identified risks along with their owners, likelihood, impact, and treatment decisions. A risk appetite statement defines acceptable risk levels broadly, a BIA assesses impact of disruptions to processes, and a disaster recovery plan addresses restoration after an incident rather than ongoing risk tracking."},{"id":137,"d":5,"type":"single","q":"An organization must choose a risk assessment method that assigns precise monetary values such as SLE and ALE to potential losses. Which type of analysis are they performing?","opts":["Qualitative analysis","Quantitative analysis","Heuristic analysis","Subjective analysis"],"ans":[1],"exp":"Quantitative analysis uses numeric, monetary values like SLE, ARO, and ALE to express risk. Qualitative analysis uses descriptive ratings such as high/medium/low rather than dollar figures. 'Heuristic' and 'subjective' analysis are not standard formal risk assessment categories in this context."},{"id":138,"d":5,"type":"multi","q":"A security analyst is preparing a risk assessment and must identify factors that are part of QUANTITATIVE risk analysis. Which of the following are quantitative components? (Choose TWO)","opts":["Single Loss Expectancy (SLE)","High/Medium/Low impact ratings","Annualized Rate of Occurrence (ARO)","A subjective severity color heat map"],"ans":[0,2],"exp":"SLE and ARO are numeric inputs used in quantitative analysis to calculate ALE (ALE = SLE x ARO). High/Medium/Low ratings and color-coded heat maps are hallmarks of qualitative analysis, which relies on descriptive judgments rather than calculated monetary values."},{"id":139,"d":5,"type":"single","q":"A security analyst discovers that a critical server has a Mean Time Between Failures (MTBF) of 50,000 hours. What does this metric primarily describe?","opts":["The average time to restore the server after a failure","The maximum acceptable data loss in time","The expected reliability or time between hardware failures","The tolerable downtime before business harm occurs"],"ans":[2],"exp":"MTBF measures the average time a repairable system operates between failures, indicating reliability. The time to restore after failure is MTTR, acceptable data loss in time is RPO, and tolerable downtime before harm is RTO, so the other options describe different BIA metrics."},{"id":140,"d":5,"type":"single","q":"During an internal review, leadership wants an independent, objective evaluation of whether security controls comply with the organization's policies, performed by staff who report to the audit committee rather than to IT. What is this called?","opts":["External audit","Internal audit","Penetration test","Vulnerability scan"],"ans":[1],"exp":"An internal audit is conducted by an organization's own independent audit function to assess compliance with internal policies and controls. An external audit is performed by an outside firm, a penetration test actively exploits weaknesses to test defenses, and a vulnerability scan only identifies potential weaknesses without an audit's compliance focus."},{"id":141,"d":5,"type":"single","q":"Your company wants ethical hackers to attempt to actively exploit weaknesses in its network to demonstrate real-world impact, with the testers given no prior knowledge of the environment. Which combination is being described?","opts":["A white-box vulnerability scan","A black-box penetration test","A credentialed vulnerability scan","A gray-box compliance audit"],"ans":[1],"exp":"A penetration test actively exploits weaknesses to show real impact, and 'no prior knowledge' makes it black-box (unknown environment) testing. Vulnerability scans identify but do not exploit weaknesses, white-box/credentialed approaches give testers full knowledge or credentials, and a compliance audit assesses controls rather than exploiting them."},{"id":142,"d":5,"type":"single","q":"A penetration tester is given partial knowledge of the target environment, such as some network diagrams and a limited set of credentials, to simulate an attacker with insider-level information. Which testing approach is this?","opts":["Black-box testing","White-box testing","Gray-box testing","Blue-team testing"],"ans":[2],"exp":"Gray-box testing provides the tester with partial knowledge of the environment, balancing realism and efficiency. Black-box testing gives no prior information, white-box testing gives full knowledge, and blue-team refers to defenders rather than a knowledge level used by an attacking tester."},{"id":143,"d":5,"type":"single","q":"A security analyst discovers that a new third-party vendor will be granted access to sensitive systems. What should the analyst do FIRST before granting access?","opts":["Sign a service level agreement defining uptime","Conduct a vendor risk assessment and due diligence review","Add the vendor's risks to the risk register","Schedule an annual penetration test of the vendor"],"ans":[1],"exp":"Before granting access, the first step is performing due diligence through a vendor risk assessment to understand the security posture and risks the vendor introduces. Signing an SLA, updating the risk register, and scheduling penetration tests are later steps that depend on first knowing the vendor's risk profile."},{"id":144,"d":5,"type":"single","q":"During an incident, a security analyst realizes the organization never evaluated how a key supplier could disrupt operations if it suffered a breach. To prevent recurrence, what should the organization implement FIRST going forward?","opts":["A right-to-audit clause in every contract","An ongoing supply chain and vendor risk management program","A penetration test of all suppliers","A non-disclosure agreement with each supplier"],"ans":[1],"exp":"Establishing an ongoing supply chain/vendor risk management program is the foundational first step that ensures suppliers are continuously assessed for the risks they pose. Right-to-audit clauses, NDAs, and penetration tests are specific tactics that should operate within that broader program rather than replace it."},{"id":145,"d":5,"type":"single","q":"An organization wants to verify that a prospective vendor's own security practices are sound by reviewing the vendor's independent audit report on its controls. Which of the following would BEST provide this assurance?","opts":["A signed NDA","A SOC 2 Type II report","A statement of work","A memorandum of agreement"],"ans":[1],"exp":"A SOC 2 Type II report is an independent attestation of how effectively a service provider's controls operated over a period, making it ideal for vendor due diligence. An NDA only protects confidentiality, an SOW defines deliverables, and an MOA documents cooperation, none of which independently attest to security control effectiveness."},{"id":146,"d":5,"type":"single","q":"A security awareness program wants to measure how susceptible employees are to social engineering by sending simulated malicious emails and tracking who clicks. Which activity is this?","opts":["A phishing campaign simulation","A tabletop exercise","A penetration test","A red-team engagement"],"ans":[0],"exp":"A simulated phishing campaign sends fake malicious emails to measure and improve employee awareness of social engineering. A tabletop exercise is a discussion-based scenario walkthrough, a penetration test broadly exploits technical and human weaknesses, and a red-team engagement is a full adversary simulation that goes well beyond email click-tracking."},{"id":147,"d":5,"type":"single","q":"Which of the following is LEAST likely to be an objective of a recurring security awareness training program?","opts":["Teaching users to recognize phishing attempts","Promoting recognition of anomalous behavior","Reducing risky user actions like password reuse","Performing the technical remediation of server vulnerabilities"],"ans":[3],"exp":"Security awareness training targets human behavior, such as recognizing phishing, spotting anomalies, and avoiding risky habits. Technically remediating server vulnerabilities is a job for IT/security operations staff, not an objective of end-user awareness training, making it the least likely answer."},{"id":148,"d":5,"type":"single","q":"A security analyst discovers that after applying all planned controls, a measurable amount of risk still remains. Leadership formally signs off accepting this remaining exposure. What is the remaining risk called?","opts":["Inherent risk","Residual risk","Transferred risk","Control risk"],"ans":[1],"exp":"Residual risk is the risk that remains after controls have been applied, and management formally accepting it is standard practice. Inherent risk is the level before any controls, transferred risk has been shifted to a third party, and 'control risk' is an auditing term about controls failing, not the leftover risk after mitigation."},{"id":149,"d":5,"type":"single","q":"An organization is establishing data governance and needs a role focused on ensuring data quality, consistent definitions, and proper usage across departments. Which role best fits?","opts":["Data owner","Data steward","Data custodian","Data processor"],"ans":[1],"exp":"A data steward is responsible for data quality, consistent definitions, and appropriate usage across the organization. The data owner holds accountability and classification authority, the data custodian implements technical controls, and the data processor handles data on a controller's behalf, none of which center on day-to-day data quality stewardship."},{"id":150,"d":5,"type":"single","q":"A company calculates that a laptop theft causes a 25% loss of a $4,000 asset and that 10 such thefts occur per year. What is the Annualized Loss Expectancy (ALE)?","opts":["$1,000","$10,000","$40,000","$4,000"],"ans":[1],"exp":"SLE = asset value x exposure factor = $4,000 x 0.25 = $1,000. ARO = 10. ALE = SLE x ARO = $1,000 x 10 = $10,000. The $1,000 figure is only the SLE for one theft, $4,000 ignores the exposure factor, and $40,000 incorrectly uses the full asset value times ARO."},{"id":151,"d":5,"type":"multi","q":"A governance team is documenting agreement types and their purposes. Which of the following statements correctly describe these third-party agreements? (Choose TWO)","opts":["An NDA legally protects the confidentiality of shared sensitive information","An SLA is a non-binding statement of mutual intent","An MSA establishes general terms governing future engagements between parties","A BPA is used to define server patch frequency"],"ans":[0,2],"exp":"An NDA protects the confidentiality of shared information, and an MSA (Master Service Agreement) sets the general terms under which future work or SOWs are executed. An SLA is binding and defines measurable service metrics (not merely intent, which describes an MOU), and a BPA governs a business partnership relationship rather than technical details like patch frequency."},{"id":152,"d":5,"type":"single","q":"During an incident review, a security analyst notes the team took an average of 3 hours to repair failed equipment across recent outages. Which metric does this 3-hour average represent?","opts":["RTO","RPO","MTTR","MTBF"],"ans":[2],"exp":"Mean Time To Repair (MTTR) is the average time required to fix a failed component and restore it to operation. RTO is the target maximum downtime for a business process, RPO is acceptable data loss in time, and MTBF measures average time between failures rather than the duration of the repair itself."},{"id":153,"d":5,"type":"single","q":"A backup policy states that the business can tolerate losing at most 15 minutes of transaction data if a system fails. Which recovery metric does the 15-minute value define?","opts":["RTO","RPO","MTBF","MTTR"],"ans":[1],"exp":"The Recovery Point Objective (RPO) defines the maximum acceptable amount of data loss measured in time, which dictates backup frequency. RTO is the tolerable downtime, MTBF measures reliability between failures, and MTTR measures repair duration, so only RPO addresses acceptable data loss."}];
+
+const DOMAINS = {1:"General Security Concepts",2:"Threats, Vulnerabilities & Mitigations",3:"Security Architecture",4:"Security Operations",5:"Security Program Management & Oversight"};
+
+// Ensure each question has an id (id = index + 1) if not present
+QUESTIONS.forEach((q,i)=>{ if(q.id===undefined) q.id = i+1; });
+
+// ---------- State ----------
+const FULL_WEIGHTS = {1:11, 2:20, 3:16, 4:25, 5:18}; // sums to 90
+let mode = 'full';
+let examQuestions = [];   // active exam set: {ref, q, opts, ans(remapped), userSel:[], flagged:bool, domain}
+let current = 0;
+let timerInterval = null;
+let secondsLeft = 0;
+let startTimestamp = 0;
+let timed = false;
+let submitted = false;
+let resultData = null;
+let reviewFilter = 'all';
+
+// ---------- Utilities ----------
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildExamQuestion(q){
+  // shuffle options and remap answer indices
+  const idxs = shuffle(q.opts.map((_,i)=>i));
+  const newOpts = idxs.map(i=>q.opts[i]);
+  const newAns = [];
+  q.ans.forEach(origAnsIdx=>{
+    const newPos = idxs.indexOf(origAnsIdx);
+    newAns.push(newPos);
+  });
+  newAns.sort((a,b)=>a-b);
+  return {
+    src: q,
+    domain: q.d,
+    type: q.type,
+    stem: q.q,
+    opts: newOpts,
+    ans: newAns,
+    exp: q.exp,
+    userSel: [],
+    flagged: false
+  };
+}
+
+function sampleFull(){
+  const set = [];
+  for(let d=1; d<=5; d++){
+    const pool = QUESTIONS.filter(q=>q.d===d);
+    const picked = shuffle(pool).slice(0, FULL_WEIGHTS[d]);
+    picked.forEach(q=>set.push(q));
+  }
+  return shuffle(set).map(buildExamQuestion);
+}
+
+function buildDrill(domain){
+  const pool = QUESTIONS.filter(q=>q.d===domain);
+  return shuffle(pool).map(buildExamQuestion);
+}
+
+// ---------- Screen routing ----------
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ---------- Start screen ----------
+function initStart(){
+  document.getElementById('stat-total').textContent = QUESTIONS.length;
+  const single = QUESTIONS.filter(q=>q.type==='single').length;
+  const multi = QUESTIONS.filter(q=>q.type==='multi').length;
+  document.getElementById('stat-single').textContent = single;
+  document.getElementById('stat-multi').textContent = multi;
+
+  const sel = document.getElementById('domain-select');
+  sel.innerHTML = '';
+  for(let d=1; d<=5; d++){
+    const count = QUESTIONS.filter(q=>q.d===d).length;
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = `Domain ${d} — ${DOMAINS[d]} (${count} questions)`;
+    sel.appendChild(opt);
+  }
+}
+
+function setMode(m){
+  mode = m;
+  document.getElementById('mode-full').classList.toggle('sel', m==='full');
+  document.getElementById('mode-drill').classList.toggle('sel', m==='drill');
+  document.getElementById('domain-picker').classList.toggle('show', m==='drill');
+}
+
+// ---------- Begin / timer ----------
+function beginExam(){
+  submitted = false;
+  if(mode==='full'){
+    examQuestions = sampleFull();
+    timed = true;
+  } else {
+    const d = parseInt(document.getElementById('domain-select').value,10);
+    examQuestions = buildDrill(d);
+    timed = false;
+  }
+  current = 0;
+  startTimestamp = Date.now();
+  showScreen('exam');
+  closeNav();
+  setupTimer();
+  renderNavigator();
+  renderQuestion();
+}
+
+function setupTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  const timerEl = document.getElementById('timer');
+  if(!timed){
+    timerEl.style.display = 'none';
+    return;
+  }
+  timerEl.style.display = '';
+  secondsLeft = 90*60;
+  timerEl.classList.remove('warn','crit');
+  updateTimerDisplay();
+  timerInterval = setInterval(()=>{
+    secondsLeft--;
+    updateTimerDisplay();
+    if(secondsLeft<=0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      doSubmit(); // auto-submit
+    }
+  },1000);
+}
+
+function updateTimerDisplay(){
+  const timerEl = document.getElementById('timer');
+  const m = Math.floor(secondsLeft/60);
+  const s = secondsLeft%60;
+  timerEl.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  timerEl.classList.toggle('warn', secondsLeft<=300 && secondsLeft>60);
+  timerEl.classList.toggle('crit', secondsLeft<=60);
+}
+
+// ---------- Navigator ----------
+function toggleNav(){ document.getElementById('navigator').classList.toggle('open'); }
+function closeNav(){ document.getElementById('navigator').classList.remove('open'); }
+
+function isAnswered(eq){ return eq.userSel.length>0; }
+
+function renderNavigator(){
+  const grid = document.getElementById('nav-grid');
+  grid.innerHTML = '';
+  examQuestions.forEach((eq,i)=>{
+    const b = document.createElement('button');
+    b.className = 'nav-btn';
+    b.textContent = i+1;
+    if(i===current) b.classList.add('current');
+    else if(isAnswered(eq)) b.classList.add('answered');
+    if(eq.flagged){
+      const dot = document.createElement('span');
+      dot.className = 'flag-dot';
+      b.appendChild(dot);
+    }
+    b.onclick = ()=>{ current = i; renderQuestion(); renderNavigator(); closeNav(); };
+    grid.appendChild(b);
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  const total = examQuestions.length;
+  const answered = examQuestions.filter(isAnswered).length;
+  document.getElementById('prog-inner').style.width = (total? (answered/total*100):0)+'%';
+  document.getElementById('prog-text').textContent = `${answered} / ${total} answered`;
+  document.getElementById('top-progress').textContent = `Answered ${answered} of ${total}`;
+}
+
+// ---------- Question render ----------
+function renderQuestion(){
+  const eq = examQuestions[current];
+  const total = examQuestions.length;
+  const panel = document.getElementById('question-panel');
+  const isMulti = eq.type==='multi';
+  const selectN = eq.ans.length;
+
+  let optsHtml = '';
+  eq.opts.forEach((text,i)=>{
+    const checked = eq.userSel.includes(i);
+    const letter = String.fromCharCode(65+i);
+    const inputType = isMulti ? 'checkbox' : 'radio';
+    optsHtml += `
+      <div class="opt ${checked?'checked':''}" onclick="selectOpt(${i})">
+        <input type="${inputType}" name="opt" ${checked?'checked':''} onclick="event.stopPropagation(); selectOpt(${i})">
+        <label onclick="event.stopPropagation(); selectOpt(${i})"><span class="opt-letter">${letter}.</span>${escapeHtml(text)}</label>
+      </div>`;
+  });
+
+  const multiInstr = isMulti ? `<span class="multi-instr">Select ${selectN}</span>` : '';
+  const lastBtnLabel = (current===total-1) ? 'Review All &rarr;' : 'Next &rarr;';
+
+  panel.innerHTML = `
+    <div class="q-meta">
+      <span class="domain-tag">D${eq.domain} · ${escapeHtml(DOMAINS[eq.domain])}</span>
+      <span class="q-counter">Question ${current+1} of ${total}</span>
+      ${multiInstr}
+    </div>
+    <div class="q-stem">${escapeHtml(eq.stem)}</div>
+    <div class="options">${optsHtml}</div>
+    <div class="q-actions">
+      <label class="flag-toggle">
+        <input type="checkbox" ${eq.flagged?'checked':''} onchange="toggleFlag()"> Flag for review
+      </label>
+      <div class="spacer"></div>
+      <button class="btn" onclick="prevQ()" ${current===0?'disabled':''}>&larr; Previous</button>
+      <button class="btn btn-primary" onclick="nextQ()">${lastBtnLabel}</button>
+    </div>
+  `;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectOpt(i){
+  const eq = examQuestions[current];
+  if(eq.type==='multi'){
+    const pos = eq.userSel.indexOf(i);
+    if(pos>=0) eq.userSel.splice(pos,1);
+    else eq.userSel.push(i);
+    eq.userSel.sort((a,b)=>a-b);
+  } else {
+    eq.userSel = [i];
+  }
+  renderQuestion();
+  renderNavigator();
+}
+
+function toggleFlag(){
+  examQuestions[current].flagged = !examQuestions[current].flagged;
+  renderNavigator();
+}
+
+function prevQ(){ if(current>0){ current--; renderQuestion(); renderNavigator(); } }
+function nextQ(){
+  if(current===examQuestions.length-1){
+    showReview();
+  } else {
+    current++;
+    renderQuestion();
+    renderNavigator();
+  }
+}
+
+// ---------- Pre-submit review ----------
+function showReview(){
+  const answered = examQuestions.filter(isAnswered).length;
+  const total = examQuestions.length;
+  const flagged = examQuestions.filter(eq=>eq.flagged).length;
+  document.getElementById('rev-answered').textContent = answered;
+  document.getElementById('rev-unanswered').textContent = total-answered;
+  document.getElementById('rev-flagged').textContent = flagged;
+
+  const tbody = document.getElementById('rev-tbody');
+  tbody.innerHTML = '';
+  examQuestions.forEach((eq,i)=>{
+    const tr = document.createElement('tr');
+    tr.className = 'rev-row';
+    tr.onclick = ()=>{ current = i; showScreen('exam'); renderQuestion(); renderNavigator(); };
+    const status = isAnswered(eq)
+      ? '<span class="pill pill-ans">Answered</span>'
+      : '<span class="pill pill-unans">Unanswered</span>';
+    const flag = eq.flagged ? '<span class="pill pill-flag">Flagged</span>' : '';
+    tr.innerHTML = `<td class="mono">${i+1}</td><td>D${eq.domain} · ${escapeHtml(DOMAINS[eq.domain])}</td><td>${status}</td><td>${flag}</td>`;
+    tbody.appendChild(tr);
+  });
+  showScreen('review');
+}
+
+function backToExam(){ showScreen('exam'); renderQuestion(); renderNavigator(); }
+
+// ---------- Submit modal ----------
+function openSubmitModal(){
+  const unanswered = examQuestions.filter(eq=>!isAnswered(eq)).length;
+  const txt = document.getElementById('modal-text');
+  if(unanswered>0){
+    txt.innerHTML = `You have <span class="warn-line">${unanswered} unanswered question${unanswered>1?'s':''}</span>. Once submitted you cannot change your answers.`;
+  } else {
+    txt.innerHTML = 'All questions answered. Once submitted you cannot change your answers.';
+  }
+  document.getElementById('submit-modal').classList.add('show');
+}
+function closeSubmitModal(){ document.getElementById('submit-modal').classList.remove('show'); }
+function confirmSubmit(){ closeSubmitModal(); doSubmit(); }
+
+// ---------- Grading ----------
+function setsEqual(a,b){
+  if(a.length!==b.length) return false;
+  const sa = a.slice().sort((x,y)=>x-y);
+  const sb = b.slice().sort((x,y)=>x-y);
+  return sa.every((v,i)=>v===sb[i]);
+}
+
+function doSubmit(){
+  if(submitted) return;
+  submitted = true;
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  closeSubmitModal();
+
+  const total = examQuestions.length;
+  let correct = 0;
+  const perDomain = {};
+  for(let d=1; d<=5; d++) perDomain[d] = {correct:0, total:0};
+
+  examQuestions.forEach(eq=>{
+    perDomain[eq.domain].total++;
+    const isCorrect = setsEqual(eq.userSel, eq.ans);
+    eq.isCorrect = isCorrect;
+    if(isCorrect){ correct++; perDomain[eq.domain].correct++; }
+  });
+
+  const pct = Math.round((correct/total)*100);
+  const scaled = Math.round(100 + (pct/100)*800);
+  const pass = scaled >= 750;
+  const elapsedSec = Math.floor((Date.now()-startTimestamp)/1000);
+
+  resultData = {total, correct, pct, scaled, pass, perDomain, elapsedSec};
+  renderResults();
+  showScreen('results');
+}
+
+function fmtTime(sec){
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  const s = sec%60;
+  if(h>0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function domainColor(p){
+  if(p>=80) return 'var(--green)';
+  if(p>=60) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+function renderResults(){
+  const r = resultData;
+  document.getElementById('res-scaled').textContent = r.scaled;
+  const v = document.getElementById('res-verdict');
+  v.textContent = r.pass ? 'PASS' : 'FAIL';
+  v.className = 'verdict ' + (r.pass?'pass':'fail');
+  document.getElementById('res-correct').textContent = `${r.correct} / ${r.total}`;
+  document.getElementById('res-pct').textContent = r.pct + '%';
+  document.getElementById('res-time').textContent = fmtTime(r.elapsedSec);
+
+  // Domain breakdown
+  const db = document.getElementById('dom-break');
+  db.innerHTML = '';
+  for(let d=1; d<=5; d++){
+    const pd = r.perDomain[d];
+    if(pd.total===0) continue;
+    const p = Math.round((pd.correct/pd.total)*100);
+    const row = document.createElement('div');
+    row.className = 'dom-row';
+    row.innerHTML = `
+      <div class="dom-head">
+        <span class="dom-name">D${d} · ${escapeHtml(DOMAINS[d])}</span>
+        <span class="dom-score mono">${pd.correct}/${pd.total} · ${p}%</span>
+      </div>
+      <div class="dom-bar-outer"><div class="dom-bar-inner" style="width:${p}%; background:${domainColor(p)};"></div></div>
+    `;
+    db.appendChild(row);
+  }
+
+  renderQReview();
+}
+
+function setFilter(f){
+  reviewFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
+  renderQReview();
+}
+
+function renderQReview(){
+  const list = document.getElementById('qreview-list');
+  list.innerHTML = '';
+  examQuestions.forEach((eq,i)=>{
+    if(reviewFilter==='incorrect' && eq.isCorrect) return;
+    if(reviewFilter==='correct' && !eq.isCorrect) return;
+
+    const card = document.createElement('div');
+    card.className = 'qr-card';
+
+    let optsHtml = '';
+    eq.opts.forEach((text,oi)=>{
+      const isAns = eq.ans.includes(oi);
+      const isYour = eq.userSel.includes(oi);
+      let cls = 'neutral';
+      let mark = '';
+      if(isAns){ cls='correct'; mark = '&#10003;'; }
+      else if(isYour && !isAns){ cls='your-wrong'; mark = '&#10007;'; }
+      const yourTag = isYour ? ' <span class="mono" style="color:var(--muted);font-size:12px;">(your answer)</span>' : '';
+      const letter = String.fromCharCode(65+oi);
+      optsHtml += `<div class="qr-opt ${cls}"><span class="mk">${mark||'&nbsp;'}</span><span><span class="opt-letter mono">${letter}.</span> ${escapeHtml(text)}${yourTag}</span></div>`;
+    });
+
+    const yourAnsText = eq.userSel.length
+      ? eq.userSel.map(i=>String.fromCharCode(65+i)).join(', ')
+      : 'None';
+    const correctAnsText = eq.ans.map(i=>String.fromCharCode(65+i)).join(', ');
+    const iconCls = eq.isCorrect ? 'correct' : 'incorrect';
+    const iconCh = eq.isCorrect ? '&#10003;' : '&#10007;';
+
+    card.innerHTML = `
+      <div class="qr-head" onclick="this.parentElement.classList.toggle('open')">
+        <span class="qr-icon ${iconCls}">${iconCh}</span>
+        <span class="qr-num mono">Q${i+1}</span>
+        <span class="qr-stem-mini">${escapeHtml(eq.stem)}</span>
+        <span class="qr-chevron">&#9656;</span>
+      </div>
+      <div class="qr-body">
+        <div style="margin-top:14px;">${optsHtml}</div>
+        <div class="qr-yourans">Your answer: ${yourAnsText} &nbsp;·&nbsp; Correct: ${correctAnsText} &nbsp;·&nbsp; D${eq.domain} ${eq.type==='multi'?'· multi-select':''}</div>
+        <div class="qr-exp">
+          <div class="ex-label">Explanation</div>
+          ${escapeHtml(eq.exp)}
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  if(list.children.length===0){
+    list.innerHTML = '<div style="color:var(--muted); padding:18px; text-align:center;">No questions match this filter.</div>';
+  }
+}
+
+function retake(){
+  reviewFilter = 'all';
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active', b.dataset.f==='all'));
+  beginExam();
+}
+
+// ---------- init ----------
+initStart();
+setMode('full');
+</script>
+</body>
+</html>
